@@ -1,1 +1,1 @@
-../../../../../../../../test/scala/fr/davit/akka/http/metrics/core/TestRegistry.scala
+../../../../../../../../test/scala/fr/davit/pekko/http/metrics/core/TestRegistry.scala

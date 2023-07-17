@@ -48,7 +48,8 @@ class DropwizardMetricsItSpec
     with SprayJsonSupport
     with DefaultJsonProtocol {
 
-  implicit val defaultPatience = PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
 
   private case class JsonResponse(metrics: Map[String, JsValue])
   implicit private val metricsFormat = jsonFormat1(JsonResponse)

@@ -4,7 +4,7 @@ object Dependencies {
 
   object Versions {
     val Pekko                 = "1.0.0"
-    val PekkoHttp             = "0.0.0+4469-fb6a5426-SNAPSHOT"
+    val PekkoHttp             = "1.0.0-RC1"
     val Datadog               = "4.2.0"
     val Dropwizard            = "4.2.19"
     val DropwizardV5          = "5.0.0"

@@ -3,18 +3,18 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val Pekko                 = "0.0.0+26633-3a8d86f8-SNAPSHOT"
-    val PekkoHttp             = "0.0.0+4340-878dd99f-SNAPSHOT"
-    val Datadog               = "4.1.0"
-    val Dropwizard            = "4.2.14"
+    val Pekko                 = "1.0.1"
+    val PekkoHttp             = "1.0.0"
+    val Datadog               = "4.2.0"
+    val Dropwizard            = "4.2.19"
     val DropwizardV5          = "5.0.0"
-    val Enumeratum            = "1.7.0"
-    val Logback               = "1.2.11"
+    val Enumeratum            = "1.7.2"
+    val Logback               = "1.4.8"
     val Prometheus            = "0.16.0"
-    val ScalaCollectionCompat = "2.9.0"
-    val ScalaLogging          = "3.9.4"
+    val ScalaCollectionCompat = "2.11.0"
+    val ScalaLogging          = "3.9.5"
     val ScalaMock             = "5.2.0"
-    val ScalaTest             = "3.2.14"
+    val ScalaTest             = "3.2.16"
   }
 
   val PekkoHttp        = "org.apache.pekko"           %% "pekko-http"            % Versions.PekkoHttp

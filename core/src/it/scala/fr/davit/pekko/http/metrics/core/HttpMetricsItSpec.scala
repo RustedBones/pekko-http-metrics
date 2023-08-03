@@ -41,7 +41,8 @@ class HttpMetricsItSpec
     with ScalaFutures
     with BeforeAndAfterAll {
 
-  implicit val defaultPatience = PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
 
   override def afterAll(): Unit = {
     Http().shutdownAllConnectionPools()

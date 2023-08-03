@@ -1,16 +1,20 @@
+import _root_.io.github.davidgregory084.ScalacOption
+
 // General info
 val username = "RustedBones"
 val repo     = "pekko-http-metrics"
 
-lazy val filterScalacOptions = { options: Seq[String] =>
-  options.filterNot { o =>
-    // get rid of value discard
-    o == "-Ywarn-value-discard" || o == "-Wvalue-discard"
-  }
+lazy val filterScalacOptions = { options: Set[ScalacOption] =>
+  options.filterNot(Set(
+    ScalacOptions.privateWarnValueDiscard,
+    ScalacOptions.warnValueDiscard,
+    ScalacOptions.warnNonUnitStatement
+  ))
 }
 
 // for sbt-github-actions
-ThisBuild / crossScalaVersions := Seq("2.13.10", "2.12.17")
+ThisBuild / crossScalaVersions := Seq("2.13.11", "2.12.18")
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(name = Some("Check project"), commands = List("scalafmtCheckAll", "headerCheckAll")),
   WorkflowStep.Sbt(name = Some("Build project"), commands = List("test", "it:test"))
@@ -20,12 +24,13 @@ ThisBuild / githubWorkflowPublishTargetBranches := Seq.empty
 
 lazy val commonSettings = Defaults.itSettings ++
   headerSettings(IntegrationTest) ++
+  inConfig(IntegrationTest)(ScalafmtPlugin.scalafmtConfigSettings) ++
   Seq(
     organization := "fr.davit",
     organizationName := "Michel Davit",
     crossScalaVersions := (ThisBuild / crossScalaVersions).value,
     scalaVersion := crossScalaVersions.value.head,
-    scalacOptions ~= filterScalacOptions,
+    tpolecatScalacOptions ~= filterScalacOptions,
     homepage := Some(url(s"https://github.com/$username/$repo")),
     licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
     startYear := Some(2019),
@@ -42,7 +47,13 @@ lazy val commonSettings = Defaults.itSettings ++
     Test / publishArtifact := false,
     // Release version of Pekko not yet available so use Apache nightlies for now
     resolvers += "Apache Nightlies" at "https://repository.apache.org/content/groups/snapshots",
-    publishTo := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging),
+    publishTo := {
+      if (isSnapshot.value) {
+        Resolver.sonatypeOssRepos("snapshots").headOption
+      } else {
+        Resolver.sonatypeOssRepos("releases").headOption
+      }
+    },
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
     credentials ++= (for {
@@ -60,14 +71,14 @@ lazy val `pekko-http-metrics` = (project in file("."))
     `pekko-http-metrics-dropwizard-v5`,
     `pekko-http-metrics-prometheus`
   )
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     publishArtifact := false
   )
 
 lazy val `pekko-http-metrics-core` = (project in file("core"))
   .configs(IntegrationTest)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.PekkoHttp,
@@ -85,7 +96,7 @@ lazy val `pekko-http-metrics-core` = (project in file("core"))
 lazy val `pekko-http-metrics-datadog` = (project in file("datadog"))
   .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Datadog,
@@ -101,7 +112,7 @@ lazy val `pekko-http-metrics-datadog` = (project in file("datadog"))
 lazy val `pekko-http-metrics-dropwizard` = (project in file("dropwizard"))
   .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.DropwizardCore,
@@ -123,7 +134,7 @@ lazy val `pekko-http-metrics-dropwizard` = (project in file("dropwizard"))
 lazy val `pekko-http-metrics-dropwizard-v5` = (project in file("dropwizard-v5"))
   .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.DropwizardV5Core,
@@ -144,7 +155,7 @@ lazy val `pekko-http-metrics-dropwizard-v5` = (project in file("dropwizard-v5"))
 lazy val `pekko-http-metrics-graphite` = (project in file("graphite"))
   .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Provided.PekkoStream,
@@ -159,7 +170,7 @@ lazy val `pekko-http-metrics-graphite` = (project in file("graphite"))
 lazy val `pekko-http-metrics-prometheus` = (project in file("prometheus"))
   .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.PrometheusCommon,

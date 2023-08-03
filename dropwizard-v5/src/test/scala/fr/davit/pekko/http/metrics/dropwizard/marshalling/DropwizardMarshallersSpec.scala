@@ -24,7 +24,7 @@ import fr.davit.pekko.http.metrics.dropwizard.DropwizardRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import spray.json.{DefaultJsonProtocol, JsValue}
+import spray.json.{DefaultJsonProtocol, JsValue, RootJsonFormat}
 
 import scala.concurrent.duration._
 
@@ -33,7 +33,7 @@ class DropwizardMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
   private case class JsonResponse(metrics: Map[String, JsValue])
 
   private trait Fixture extends SprayJsonSupport with DefaultJsonProtocol with DropwizardMarshallers {
-    implicit val metricsFormat = jsonFormat1(JsonResponse)
+    implicit val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse)
 
     val registry = DropwizardRegistry()
     registry.underlying.counter("other.metric")

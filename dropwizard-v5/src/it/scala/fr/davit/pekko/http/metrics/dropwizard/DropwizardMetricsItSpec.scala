@@ -35,7 +35,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
-import spray.json.{DefaultJsonProtocol, JsValue}
+import spray.json.{DefaultJsonProtocol, JsValue, RootJsonFormat}
 
 import scala.concurrent.duration._
 
@@ -52,7 +52,7 @@ class DropwizardMetricsItSpec
     PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
 
   private case class JsonResponse(metrics: Map[String, JsValue])
-  implicit private val metricsFormat = jsonFormat1(JsonResponse)
+  implicit private val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse)
 
   override def afterAll(): Unit = {
     Http().shutdownAllConnectionPools()

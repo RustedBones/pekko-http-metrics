@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val Pekko                 = "1.0.0"
-    val PekkoHttp             = "1.0.0-RC1"
+    val Pekko                 = "1.0.1"
+    val PekkoHttp             = "1.0.0"
     val Datadog               = "4.2.0"
     val Dropwizard            = "4.2.19"
     val DropwizardV5          = "5.0.0"

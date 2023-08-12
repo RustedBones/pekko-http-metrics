@@ -42,28 +42,9 @@ ThisBuild / tlJdkRelease    := Some(8)
 // mima
 ThisBuild / mimaBinaryIssueFilters ++= Seq()
 
-lazy val publishSettings = Seq(
-  publishMavenStyle             := true,
-  Test / publishArtifact        := false,
-  publishTo                     := {
-    if (isSnapshot.value) {
-      Resolver.sonatypeOssRepos("snapshots").headOption
-    } else {
-      Resolver.sonatypeOssRepos("releases").headOption
-    }
-  },
-  releaseCrossBuild             := true,
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  credentials ++= (for {
-    username <- sys.env.get("SONATYPE_USERNAME")
-    password <- sys.env.get("SONATYPE_PASSWORD")
-  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq
-)
-
 lazy val commonSettings = Defaults.itSettings ++
   headerSettings(IntegrationTest) ++
-  inConfig(IntegrationTest)(ScalafmtPlugin.scalafmtConfigSettings) ++
-  publishSettings
+  inConfig(IntegrationTest)(ScalafmtPlugin.scalafmtConfigSettings)
 
 lazy val `pekko-http-metrics` = (project in file("."))
   .aggregate(

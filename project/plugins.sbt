@@ -1,5 +1,3 @@
-addSbtPlugin("com.github.sbt" % "sbt-release"                  % "1.1.0")
-addSbtPlugin("com.github.sbt" % "sbt-pgp"                      % "2.2.1")
-addSbtPlugin("org.typelevel"  % "sbt-typelevel"                % "0.5.0-RC10")
-addSbtPlugin("org.typelevel"  % "sbt-typelevel-github-actions" % "0.5.0-RC10")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"                 % "3.9.21")
+addSbtPlugin("org.typelevel" % "sbt-typelevel"                % "0.5.0-RC11")
+addSbtPlugin("org.typelevel" % "sbt-typelevel-ci-release"     % "0.5.0-RC11")
+addSbtPlugin("org.typelevel" % "sbt-typelevel-github-actions" % "0.5.0-RC11")

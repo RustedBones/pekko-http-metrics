@@ -33,7 +33,7 @@ class DropwizardMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
   private case class JsonResponse(metrics: Map[String, JsValue])
 
   private trait Fixture extends SprayJsonSupport with DefaultJsonProtocol with DropwizardMarshallers {
-    implicit val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse)
+    implicit val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse.apply)
 
     val registry = DropwizardRegistry()
     registry.underlying.counter("other.metric")

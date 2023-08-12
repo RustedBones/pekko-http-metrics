@@ -59,10 +59,10 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: Collector
 
   private[prometheus] val serverDimensions = settings.serverDimensions.map(_.name)
 
-  private val customRequestDimensions = settings.customDimensions.collect { case l: HttpRequestLabeler => l.name }
+  private val customRequestDimensions        = settings.customDimensions.collect { case l: HttpRequestLabeler => l.name }
   private[prometheus] val requestsDimensions = (methodDimension ++ customRequestDimensions).toSeq
 
-  private val customResponseDimensions = settings.customDimensions.collect { case l: HttpResponseLabeler => l.name }
+  private val customResponseDimensions        = settings.customDimensions.collect { case l: HttpResponseLabeler => l.name }
   private[prometheus] val responsesDimensions = (statusDimension ++ pathDimension ++ customResponseDimensions).toSeq
 
   lazy val requests: Counter = io.prometheus.client.Counter
@@ -147,7 +147,7 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: Collector
           .maxAgeSeconds(maxAge.toSeconds)
           .ageBuckets(ageBuckets)
           .register(underlying)
-      case Buckets(bs) =>
+      case Buckets(bs)                       =>
         io.prometheus.client.Histogram
           .build()
           .namespace(settings.namespace)

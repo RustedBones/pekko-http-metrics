@@ -58,7 +58,7 @@ class HttpMetricsItSpec
 
     val greeter: Flow[Message, Message, Any] =
       Flow[Message].mapConcat {
-        case tm: TextMessage =>
+        case tm: TextMessage   =>
           TextMessage(Source.single("Hello ") ++ tm.textStream ++ Source.single("!")) :: Nil
         case bm: BinaryMessage =>
           // ignore binary messages but drain content to avoid the stream being clogged
@@ -86,7 +86,7 @@ class HttpMetricsItSpec
       .bindFlow(route)
       .futureValue
 
-    val uri = Uri()
+    val uri     = Uri()
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
     val request = HttpRequest().withUri(uri)
@@ -110,7 +110,7 @@ class HttpMetricsItSpec
       .bind(route)
       .futureValue
 
-    val uri = Uri()
+    val uri     = Uri()
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
     val request = HttpRequest().withUri(uri)
@@ -134,7 +134,7 @@ class HttpMetricsItSpec
       .bindFlow(route)
       .futureValue
 
-    val uri = Uri()
+    val uri     = Uri()
       .withScheme("ws")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
       .withPath(Uri.Path("/greeter"))

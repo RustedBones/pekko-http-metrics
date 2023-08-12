@@ -41,19 +41,19 @@ class GraphiteRegistrySpec
     val carbon  = TestProbe()
     val handler = TestProbe()
     carbon.send(IO(Tcp), Tcp.Bind(carbon.ref, new InetSocketAddress(0)))
-    val port   = carbon.expectMsgType[Tcp.Bound].localAddress.getPort
-    val socket = carbon.sender()
+    val port    = carbon.expectMsgType[Tcp.Bound].localAddress.getPort
+    val socket  = carbon.sender()
     carbon.setAutoPilot((sender: ActorRef, msg: Any) =>
       msg match {
         case _: Tcp.Connected =>
           sender ! Tcp.Register(handler.ref)
           TestActor.KeepRunning
-        case _ =>
+        case _                =>
           throw new Exception(s"Unexpected message $msg")
       }
     )
 
-    val client = new CarbonClient("localhost", port) {
+    val client   = new CarbonClient("localhost", port) {
       override val clock: Clock = Clock.fixed(timestamp, ZoneId.systemDefault())
     }
     val registry = GraphiteRegistry(client)

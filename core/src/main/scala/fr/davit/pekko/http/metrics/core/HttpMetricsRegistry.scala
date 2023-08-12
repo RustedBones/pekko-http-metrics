@@ -60,7 +60,7 @@ abstract class HttpMetricsRegistry(settings: HttpMetricsSettings) extends HttpMe
     requests.inc(dims)
 
     val entity = request.entity match {
-      case data: HttpEntity.Strict =>
+      case data: HttpEntity.Strict  =>
         requestsSize.update(data.contentLength, dims)
         data
       case data: HttpEntity.Default =>
@@ -89,11 +89,11 @@ abstract class HttpMetricsRegistry(settings: HttpMetricsSettings) extends HttpMe
     responses.inc(respDims)
     if (settings.defineError(response)) responsesErrors.inc(respDims)
     response.entity match {
-      case data: HttpEntity.Strict =>
+      case data: HttpEntity.Strict                              =>
         responsesSize.update(data.contentLength, respDims)
         responsesDuration.observe(Deadline.now - start, respDims)
         response
-      case data: HttpEntity.Default =>
+      case data: HttpEntity.Default                             =>
         responsesSize.update(data.contentLength, respDims)
         responsesDuration.observe(Deadline.now - start, respDims)
         response

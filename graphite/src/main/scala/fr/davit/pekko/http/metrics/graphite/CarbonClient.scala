@@ -79,6 +79,6 @@ class CarbonClient(host: String, port: Int)(implicit system: ActorSystem) extend
 
   override def close(): Unit = {
     queue.complete()
-    Await.result(queue.watchCompletion(), Duration.Inf)
+    val _ = Await.result(queue.watchCompletion(), Duration.Inf)
   }
 }

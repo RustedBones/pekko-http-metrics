@@ -65,7 +65,7 @@ class PrometheusMetricsItSpec
       .bindFlow(route)
       .futureValue
 
-    val uri = Uri("/metrics")
+    val uri     = Uri("/metrics")
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
     val request = HttpRequest().withUri(uri)

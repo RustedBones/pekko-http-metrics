@@ -54,7 +54,7 @@ object MethodLabeler extends HttpRequestLabeler {
 }
 
 object StatusGroupLabeler extends HttpResponseLabeler {
-  override def name = "status"
+  override def name                                  = "status"
   override def label(response: HttpResponse): String = response.status match {
     case _: StatusCodes.Success     => "2xx"
     case _: StatusCodes.Redirection => "3xx"

@@ -37,11 +37,11 @@ class DatadogRegistrySpec
   val dimensions = Seq(Dimension(StatusGroupLabeler.name, "2xx"), Dimension(PathLabeler.name, "/api"))
 
   def withFixture(test: (TestProbe, DatadogRegistry) => Any) = {
-    val statsd = TestProbe()
+    val statsd   = TestProbe()
     statsd.send(IO(Udp), Udp.Bind(statsd.ref, new InetSocketAddress(0)))
-    val port   = statsd.expectMsgType[Udp.Bound].localAddress.getPort
-    val socket = statsd.sender()
-    val client = new NonBlockingStatsDClientBuilder()
+    val port     = statsd.expectMsgType[Udp.Bound].localAddress.getPort
+    val socket   = statsd.sender()
+    val client   = new NonBlockingStatsDClientBuilder()
       .hostname("localhost")
       .port(port)
       .build()

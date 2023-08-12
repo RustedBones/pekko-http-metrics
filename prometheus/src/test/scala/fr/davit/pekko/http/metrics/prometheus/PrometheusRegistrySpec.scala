@@ -38,10 +38,10 @@ class PrometheusRegistrySpec extends AnyFlatSpec with Matchers {
     override def label(response: HttpResponse): String = label
   }
 
-  val serverDimensions = List(
+  val serverDimensions    = List(
     Dimension("server_dim", "server_label")
   )
-  val requestsDimensions = List(
+  val requestsDimensions  = List(
     Dimension(MethodLabeler.name, "GET"),
     Dimension(CustomRequestLabeler.name, CustomRequestLabeler.label)
   )

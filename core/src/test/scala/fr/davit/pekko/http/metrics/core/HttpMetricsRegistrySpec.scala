@@ -237,7 +237,7 @@ class HttpMetricsRegistrySpec
   )
   // based on https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent#browser_name
   object BrowserLabeler extends HttpRequestLabeler {
-    override def name: String = "browser"
+    override def name: String                        = "browser"
     override def label(request: HttpRequest): String = {
       val products = for {
         ua <- request.header[`User-Agent`].toSeq

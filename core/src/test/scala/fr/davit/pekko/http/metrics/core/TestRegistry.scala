@@ -27,7 +27,7 @@ import scala.concurrent.duration.FiniteDuration
 object TestRegistry {
 
   val settings: HttpMetricsSettings = HttpMetricsSettingsImpl(
-    "", // not used
+    "",                                                           // not used
     HttpMetricsNamesImpl("", "", "", "", "", "", "", "", "", ""), // not used
     _.status.isInstanceOf[StatusCodes.ServerError],
     includeMethodDimension = false,
@@ -98,16 +98,16 @@ object TestRegistry {
 
 final class TestRegistry(settings: HttpMetricsSettings = TestRegistry.settings) extends HttpMetricsRegistry(settings) {
 
-  import TestRegistry._
+  import TestRegistry.*
 
-  override val requests          = new TestCounter
-  override val requestsActive    = new TestGauge
-  override val requestsFailures  = new TestCounter
-  override val requestsSize      = new TestHistogram
-  override val responses         = new TestCounter
-  override val responsesErrors   = new TestCounter
-  override val responsesDuration = new TestTimer
-  override val responsesSize     = new TestHistogram
-  override val connections       = new TestCounter
-  override val connectionsActive = new TestGauge
+  override val requests: TestCounter         = new TestCounter
+  override val requestsActive: TestGauge     = new TestGauge
+  override val requestsFailures: TestCounter = new TestCounter
+  override val requestsSize: TestHistogram   = new TestHistogram
+  override val responses: TestCounter        = new TestCounter
+  override val responsesErrors: TestCounter  = new TestCounter
+  override val responsesDuration: TestTimer  = new TestTimer
+  override val responsesSize: TestHistogram  = new TestHistogram
+  override val connections: TestCounter      = new TestCounter
+  override val connectionsActive: TestGauge  = new TestGauge
 }

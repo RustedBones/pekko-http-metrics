@@ -59,15 +59,15 @@ trait HttpMetricsDirectives {
       val pathCandidate = ctx.unmatchedPath.toString
       pm(ctx.unmatchedPath) match {
         case Matched(rest, values) =>
-          tprovide(values) & mapRequestContext(_ withUnmatchedPath rest) & mapResponse { response =>
-            val suffix = response.attribute(PathLabeler.key).getOrElse("")
+          tprovide(values)(LIsTuple) & mapRequestContext(_ withUnmatchedPath rest) & mapResponse { response =>
+            val suffix    = response.attribute(PathLabeler.key).getOrElse("")
             val pathLabel = label match {
               case Some(l) => "/" + l + suffix // pm matches additional slash prefix
               case None    => pathCandidate.substring(0, pathCandidate.length - rest.charCount) + suffix
             }
             response.addAttribute(PathLabeler.key, pathLabel)
           }
-        case Unmatched =>
+        case Unmatched             =>
           reject
       }
     }

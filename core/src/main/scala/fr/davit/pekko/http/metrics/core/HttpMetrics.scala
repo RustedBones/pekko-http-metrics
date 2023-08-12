@@ -94,7 +94,7 @@ object HttpMetrics {
       .andThen {
         case (req, Success(resp)) =>
           metricsHandler.onResponse(req, resp)
-        case (req, Failure(e)) =>
+        case (req, Failure(e))    =>
           metricsHandler.onFailure(req, e)
           throw e
       }

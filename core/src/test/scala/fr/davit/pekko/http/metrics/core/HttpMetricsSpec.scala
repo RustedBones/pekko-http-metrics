@@ -19,13 +19,14 @@ package fr.davit.pekko.http.metrics.core
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{RequestContext, RouteResult}
 import org.apache.pekko.stream.scaladsl.Keep
 import org.apache.pekko.stream.testkit.scaladsl.{TestSink, TestSource}
 import org.apache.pekko.testkit.TestKit
-import org.scalamock.matchers.ArgCapture.CaptureOne
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{doNothing, mock, when}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -38,22 +39,19 @@ class HttpMetricsSpec
     with AnyFlatSpecLike
     with Matchers
     with ScalaFutures
-    with MockFactory
     with BeforeAndAfterAll {
 
   implicit val ec: ExecutionContext = system.dispatcher
 
+  private def anyRequestContext() = any(classOf[RequestContext])
+  private def anyRequest()        = any(classOf[HttpRequest])
+
   abstract class Fixture[T] {
-    val metricsHandler = mock[HttpMetricsHandler]
-    val server         = mockFunction[RequestContext, Future[RouteResult]]
+    val metricsHandler: HttpMetricsHandler = mock(classOf[HttpMetricsHandler])
+    val server                             = mock(classOf[Function[RequestContext, Future[RouteResult]]])
 
-    (metricsHandler.onConnection _)
-      .expects()
-      .returns((): Unit)
-
-    (metricsHandler.onDisconnection _)
-      .expects()
-      .returns((): Unit)
+    doNothing().when(metricsHandler).onConnection()
+    doNothing().when(metricsHandler).onDisconnection()
 
     val (source, sink) = TestSource
       .probe[HttpRequest]
@@ -97,19 +95,15 @@ class HttpMetricsSpec
   }
 
   it should "call the metrics handler on handled requests" in new Fixture {
-    val request  = CaptureOne[HttpRequest]()
-    val response = CaptureOne[HttpResponse]()
-    (metricsHandler.onRequest _)
-      .expects(capture(request))
-      .onCall { req: HttpRequest => req }
+    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
+    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
+    when(metricsHandler.onRequest(request.capture()))
+      .thenAnswer(_.getArgument(0))
 
-    server
-      .expects(*)
-      .onCall(complete(StatusCodes.OK))
-
-    (metricsHandler.onResponse _)
-      .expects(*, capture(response))
-      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
+    when(server.apply(anyRequestContext()))
+      .thenAnswer(invocation => complete(StatusCodes.OK)(invocation.getArgument[RequestContext](0)))
+    when(metricsHandler.onResponse(anyRequest(), response.capture()))
+      .thenAnswer(_.getArgument(1))
 
     sink.request(1)
     source.sendNext(HttpRequest())
@@ -122,23 +116,20 @@ class HttpMetricsSpec
       .to[HttpResponse]
       .futureValue
 
-    response.value shouldBe expected
+    response.getValue shouldBe expected
   }
 
   it should "call the metrics handler on rejected requests" in new Fixture {
-    val request  = CaptureOne[HttpRequest]()
-    val response = CaptureOne[HttpResponse]()
-    (metricsHandler.onRequest _)
-      .expects(capture(request))
-      .onCall { req: HttpRequest => req }
+    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
+    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
+    when(metricsHandler.onRequest(request.capture()))
+      .thenAnswer(_.getArgument(0))
 
-    server
-      .expects(*)
-      .onCall(reject)
+    when(server.apply(anyRequestContext()))
+      .thenAnswer(invocation => reject(invocation.getArgument[RequestContext](0)))
 
-    (metricsHandler.onResponse _)
-      .expects(*, capture(response))
-      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
+    when(metricsHandler.onResponse(anyRequest(), response.capture()))
+      .thenAnswer(_.getArgument(1))
 
     sink.request(1)
     source.sendNext(HttpRequest())
@@ -151,23 +142,20 @@ class HttpMetricsSpec
       .to[HttpResponse]
       .futureValue
       .addAttribute(PathLabeler.key, "unhandled")
-    response.value shouldBe expected
+    response.getValue shouldBe expected
   }
 
   it should "call the metrics handler on error requests" in new Fixture {
-    val request  = CaptureOne[HttpRequest]()
-    val response = CaptureOne[HttpResponse]()
-    (metricsHandler.onRequest _)
-      .expects(capture(request))
-      .onCall { req: HttpRequest => req }
+    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
+    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
+    when(metricsHandler.onRequest(request.capture()))
+      .thenAnswer(_.getArgument(0))
 
-    server
-      .expects(*)
-      .onCall(failWith(new Exception("BOOM!")))
+    when(server.apply(anyRequestContext()))
+      .thenAnswer(invocation => failWith(new Exception("BOOM!"))(invocation.getArgument[RequestContext](0)))
 
-    (metricsHandler.onResponse _)
-      .expects(*, capture(response))
-      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
+    when(metricsHandler.onResponse(anyRequest(), response.capture()))
+      .thenAnswer(_.getArgument(1))
 
     sink.request(1)
     source.sendNext(HttpRequest())
@@ -180,7 +168,7 @@ class HttpMetricsSpec
       .to[HttpResponse]
       .futureValue
       .addAttribute(PathLabeler.key, "unhandled")
-    response.value shouldBe expected
+    response.getValue shouldBe expected
   }
 
 }

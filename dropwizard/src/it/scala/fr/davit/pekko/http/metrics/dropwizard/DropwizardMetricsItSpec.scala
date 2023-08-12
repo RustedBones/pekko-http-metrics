@@ -52,7 +52,7 @@ class DropwizardMetricsItSpec
     PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
 
   private case class JsonResponse(metrics: Map[String, JsValue])
-  implicit private val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse)
+  implicit private val metricsFormat: RootJsonFormat[JsonResponse] = jsonFormat1(JsonResponse.apply)
 
   override def afterAll(): Unit = {
     Http().shutdownAllConnectionPools()
@@ -75,7 +75,7 @@ class DropwizardMetricsItSpec
       .bindFlow(route)
       .futureValue
 
-    val uri = Uri("/metrics")
+    val uri     = Uri("/metrics")
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
     val request = HttpRequest().withUri(uri)

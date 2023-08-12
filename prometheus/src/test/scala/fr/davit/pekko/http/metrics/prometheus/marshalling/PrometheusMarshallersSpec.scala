@@ -62,7 +62,7 @@ class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
 
     Get() ~> metrics(registry) ~> check {
       response.entity.contentType shouldBe PrometheusMarshallers.PrometheusContentType
-      val text = responseAs[String]
+      val text    = responseAs[String]
       // println(text)
       val metrics = text
         .split('\n')

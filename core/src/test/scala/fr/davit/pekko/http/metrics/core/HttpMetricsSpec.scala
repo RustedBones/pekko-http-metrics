@@ -26,7 +26,7 @@ import org.apache.pekko.stream.testkit.scaladsl.{TestSink, TestSource}
 import org.apache.pekko.testkit.TestKit
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{doNothing, mock, when}
+import org.mockito.Mockito.{mock, when}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -47,17 +47,19 @@ class HttpMetricsSpec
   private def anyRequest()        = any(classOf[HttpRequest])
 
   abstract class Fixture[T] {
-    val metricsHandler: HttpMetricsHandler = mock(classOf[HttpMetricsHandler])
-    val server                             = mock(classOf[Function[RequestContext, Future[RouteResult]]])
-
-    doNothing().when(metricsHandler).onConnection()
-    doNothing().when(metricsHandler).onDisconnection()
+    val metricsHandler: HttpMetricsHandler                    =
+      mock(classOf[HttpMetricsHandler])
+    val server: Function[RequestContext, Future[RouteResult]] =
+      mock(classOf[Function[RequestContext, Future[RouteResult]]])
 
     val (source, sink) = TestSource
       .probe[HttpRequest]
       .via(HttpMetrics.meterFlow(metricsHandler).join(HttpMetrics.metricsRouteToFlow(server)))
       .toMat(TestSink.probe[HttpResponse])(Keep.both)
       .run()
+
+    // wait connection to be established so next mock stubbing does not interfere with onConnect()
+    Thread.sleep(50)
   }
 
   override def afterAll(): Unit = {

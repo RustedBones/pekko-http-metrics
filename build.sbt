@@ -36,8 +36,9 @@ ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions   := Seq(java17, java11)
 
 // build
-ThisBuild / tlFatalWarnings := true
-ThisBuild / tlJdkRelease    := Some(8)
+ThisBuild / tlFatalWarnings         := true
+ThisBuild / tlJdkRelease            := Some(8)
+ThisBuild / tlSonatypeUseLegacyHost := true
 
 // mima
 ThisBuild / mimaBinaryIssueFilters ++= Seq()

@@ -42,12 +42,9 @@ ThisBuild / tlJdkRelease    := Some(8)
 // mima
 ThisBuild / mimaBinaryIssueFilters ++= Seq()
 
-lazy val commonSettings = Defaults.itSettings ++
-  headerSettings(IntegrationTest) ++
-  inConfig(IntegrationTest)(ScalafmtPlugin.scalafmtConfigSettings)
-
 lazy val `pekko-http-metrics` = (project in file("."))
   .aggregate(
+    integration,
     `pekko-http-metrics-core`,
     `pekko-http-metrics-datadog`,
     `pekko-http-metrics-graphite`,
@@ -55,14 +52,11 @@ lazy val `pekko-http-metrics` = (project in file("."))
     `pekko-http-metrics-dropwizard-v5`,
     `pekko-http-metrics-prometheus`
   )
-  .settings(commonSettings)
   .settings(
     publishArtifact := false
   )
 
 lazy val `pekko-http-metrics-core` = (project in file("core"))
-  .configs(IntegrationTest)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Enumeratum,
@@ -78,32 +72,22 @@ lazy val `pekko-http-metrics-core` = (project in file("core"))
   )
 
 lazy val `pekko-http-metrics-datadog` = (project in file("datadog"))
-  .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Datadog,
-      Dependencies.Provided.PekkoStream,
-      Dependencies.Test.Logback,
-      Dependencies.Test.PekkoHttpTestkit,
-      Dependencies.Test.PekkoSlf4j,
-      Dependencies.Test.PekkoStreamTestkit,
-      Dependencies.Test.ScalaTest
+      Dependencies.Provided.PekkoStream
     )
   )
 
 lazy val `pekko-http-metrics-dropwizard` = (project in file("dropwizard"))
-  .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.DropwizardCore,
       Dependencies.DropwizardJson,
       Dependencies.ScalaLogging,
       Dependencies.Provided.PekkoStream,
-      Dependencies.Test.DropwizardJvm,
       Dependencies.Test.Logback,
       Dependencies.Test.PekkoHttpJson,
       Dependencies.Test.PekkoHttpTestkit,
@@ -116,15 +100,12 @@ lazy val `pekko-http-metrics-dropwizard` = (project in file("dropwizard"))
   )
 
 lazy val `pekko-http-metrics-dropwizard-v5` = (project in file("dropwizard-v5"))
-  .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.DropwizardV5Core,
       Dependencies.DropwizardV5Json,
       Dependencies.Provided.PekkoStream,
-      Dependencies.Test.DropwizardV5Jvm,
       Dependencies.Test.Logback,
       Dependencies.Test.PekkoHttpJson,
       Dependencies.Test.PekkoHttpTestkit,
@@ -137,29 +118,42 @@ lazy val `pekko-http-metrics-dropwizard-v5` = (project in file("dropwizard-v5"))
   )
 
 lazy val `pekko-http-metrics-graphite` = (project in file("graphite"))
-  .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.Provided.PekkoStream,
-      Dependencies.Test.Logback,
-      Dependencies.Test.PekkoHttpTestkit,
-      Dependencies.Test.PekkoSlf4j,
-      Dependencies.Test.PekkoStreamTestkit,
-      Dependencies.Test.ScalaTest
+      Dependencies.Provided.PekkoStream
     )
   )
 
 lazy val `pekko-http-metrics-prometheus` = (project in file("prometheus"))
-  .configs(IntegrationTest)
   .dependsOn(`pekko-http-metrics-core`)
-  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.PrometheusCommon,
       Dependencies.Provided.PekkoStream,
       Dependencies.Test.Logback,
+      Dependencies.Test.PekkoHttpTestkit,
+      Dependencies.Test.PekkoSlf4j,
+      Dependencies.Test.PekkoStreamTestkit,
+      Dependencies.Test.PekkoTestkit,
+      Dependencies.Test.ScalaTest
+    )
+  )
+
+lazy val integration = (project in file("integration"))
+  .dependsOn(
+    `pekko-http-metrics-core`          % "test->test",
+    `pekko-http-metrics-datadog`       % "test",
+    `pekko-http-metrics-graphite`      % "test",
+    `pekko-http-metrics-dropwizard-v5` % "test",
+    `pekko-http-metrics-prometheus`    % "test"
+  )
+  .settings(
+    publishArtifact := false,
+    libraryDependencies ++= Seq(
+      Dependencies.Test.DropwizardV5Jvm,
+      Dependencies.Test.Logback,
+      Dependencies.Test.PekkoHttpJson,
       Dependencies.Test.PekkoHttpTestkit,
       Dependencies.Test.PekkoSlf4j,
       Dependencies.Test.PekkoStreamTestkit,

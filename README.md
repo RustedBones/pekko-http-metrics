@@ -16,9 +16,9 @@ The following implementations are supported:
 
 ## Versions
 
-| Version | Release date | Pekka Http version | Scala versions |
-|---------|--------------|--------------------|----------------|
-| `x.x.x` | xxxx-xx-xx   | `x.x.x`            | `x.x.x`        |
+| Version | Release date | Pekka Http version | Scala versions        |
+|---------|--------------|--------------------|-----------------------|
+| `1.0.0` | 2023-08-14   | `1.0.0`            | `3.3`, `2.13`, `2.12` |
 
 The complete list can be found in the [CHANGELOG](CHANGELOG.md) file.
 

@@ -25,6 +25,7 @@ import org.apache.pekko.http.scaladsl.settings.ServerSettings
 import org.apache.pekko.stream.scaladsl.{Flow, Source}
 import org.apache.pekko.stream.{Materializer, SystemMaterializer}
 import fr.davit.pekko.http.metrics.core.{HttpMetrics, HttpMetricsHandler}
+import org.apache.pekko.http.scaladsl.server.Route
 
 import scala.annotation.nowarn
 import scala.concurrent.Future
@@ -47,16 +48,29 @@ final case class HttpMetricsServerBuilder(
 
   private lazy val http: HttpExt = Http(system.classicSystem)
 
-  def meterTo(metricsHandler: HttpMetricsHandler): HttpMetricsServerBuilder                 = copy(metricsHandler = metricsHandler)
-  override def onInterface(newInterface: String): HttpMetricsServerBuilder                  = copy(interface = newInterface)
-  override def onPort(newPort: Int): HttpMetricsServerBuilder                               = copy(port = newPort)
-  override def logTo(newLog: LoggingAdapter): HttpMetricsServerBuilder                      = copy(log = newLog)
-  override def withSettings(newSettings: ServerSettings): HttpMetricsServerBuilder          = copy(settings = newSettings)
+  def meterTo(metricsHandler: HttpMetricsHandler): HttpMetricsServerBuilder                 =
+    copy(metricsHandler = metricsHandler)
+  override def onInterface(newInterface: String): HttpMetricsServerBuilder                  =
+    copy(interface = newInterface)
+  override def onPort(newPort: Int): HttpMetricsServerBuilder                               =
+    copy(port = newPort)
+  override def logTo(newLog: LoggingAdapter): HttpMetricsServerBuilder                      =
+    copy(log = newLog)
+  override def withSettings(newSettings: ServerSettings): HttpMetricsServerBuilder          =
+    copy(settings = newSettings)
   override def adaptSettings(f: ServerSettings => ServerSettings): HttpMetricsServerBuilder =
     copy(settings = f(settings))
-  override def enableHttps(newContext: HttpsConnectionContext): HttpMetricsServerBuilder    = copy(context = newContext)
+  override def enableHttps(newContext: HttpsConnectionContext): HttpMetricsServerBuilder    =
+    copy(context = newContext)
   override def withMaterializer(newMaterializer: Materializer): HttpMetricsServerBuilder    =
     copy(materializer = newMaterializer)
+
+  // Define an extra bind method for Route to ensure proper metric instrumentation.
+  // This must be favored from the implicit RouteResult.routeToFunction
+  // as erasure creates conflict with ServerBuilder.bind definition, add DummyImplicit parameter
+  def bind(route: Route)(implicit ev: DummyImplicit): Future[ServerBinding] = {
+    bind(HttpMetrics.metricsRouteToFunction(route)(system))
+  }
 
   @nowarn("msg=deprecated")
   override def bind(f: HttpRequest => Future[HttpResponse]): Future[ServerBinding] = {
@@ -83,6 +97,12 @@ final case class HttpMetricsServerBuilder(
       settings,
       log
     )(materializer)
+  }
+
+  // Define an extra bind method for Route to ensure proper metric instrumentation.
+  // This must be favored from the implicit RouteResult.routeToFlow
+  def bindFlow(route: Route): Future[ServerBinding] = {
+    bindFlow(HttpMetrics.metricsRouteToFlow(route)(system))
   }
 
   @nowarn("msg=deprecated")

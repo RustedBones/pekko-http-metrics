@@ -16,23 +16,24 @@
 
 package fr.davit.pekko.http.metrics.core
 
+import fr.davit.pekko.http.metrics.core.HttpMetrics.*
+import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.*
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage, WebSocketRequest}
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, StatusCodes, Uri}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
 import org.apache.pekko.testkit.TestKit
-import fr.davit.pekko.http.metrics.core.HttpMetrics._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class HttpMetricsItSpec
     extends TestKit(ActorSystem("HttpMetricsItSpec"))
@@ -50,9 +51,9 @@ class HttpMetricsItSpec
   }
 
   trait Fixture {
-
     val settings: HttpMetricsSettings = TestRegistry.settings
       .withNamespace("com.example.service")
+      .withIncludePathDimension(true)
 
     val registry = new TestRegistry(settings)
 
@@ -67,11 +68,11 @@ class HttpMetricsItSpec
       }
 
     val route: Route = {
-      pathEndOrSingleSlash {
+      pathLabeled(Slash.? ~ PathEnd, "http") {
         get {
           complete("Hello world")
         }
-      } ~ path("greeter") {
+      } ~ pathLabeled("greeter", "ws") {
         get {
           handleWebSocketMessages(greeter)
         }
@@ -80,55 +81,68 @@ class HttpMetricsItSpec
   }
 
   "HttpMetrics" should "record metrics on flow handler" in new Fixture {
-
     val binding = Http()
       .newMeteredServerAt("localhost", 0, registry)
       .bindFlow(route)
       .futureValue
 
-    val uri     = Uri()
+    val uri = Uri()
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
-    val request = HttpRequest().withUri(uri)
 
-    val response = Http()
-      .singleRequest(request)
+    val okRequest  = HttpRequest().withUri(uri)
+    val okResponse = Http()
+      .singleRequest(okRequest)
       .futureValue
+    okResponse.status shouldBe StatusCodes.OK
+    Unmarshal(okResponse).to[String].futureValue shouldBe "Hello world"
 
-    response.status shouldBe StatusCodes.OK
-    Unmarshal(response).to[String].futureValue shouldBe "Hello world"
+    val unhandledRequest  = HttpRequest().withUri(uri.withPath(Uri.Path("/unknown")))
+    val unhandledResponse = Http()
+      .singleRequest(unhandledRequest)
+      .futureValue
+    unhandledResponse.status shouldBe StatusCodes.NotFound
+
     registry.connections.value() shouldBe 1
-    registry.requests.value() shouldBe 1
+    registry.requests.value() shouldBe 2
+    registry.responses.value(Seq(Dimension("path", "/http"))) shouldBe 1
+    registry.responses.value(Seq(Dimension("path", "unhandled"))) shouldBe 1
 
     binding.terminate(30.seconds).futureValue
   }
 
   it should "record metrics on function handler" in new Fixture {
-
     val binding = Http()
       .newMeteredServerAt("localhost", 0, registry)
       .bind(route)
       .futureValue
 
-    val uri     = Uri()
+    val uri = Uri()
       .withScheme("http")
       .withAuthority(binding.localAddress.getHostString, binding.localAddress.getPort)
-    val request = HttpRequest().withUri(uri)
 
-    val response = Http()
-      .singleRequest(request)
+    val okRequest  = HttpRequest().withUri(uri)
+    val okResponse = Http()
+      .singleRequest(okRequest)
       .futureValue
+    okResponse.status shouldBe StatusCodes.OK
+    Unmarshal(okResponse).to[String].futureValue shouldBe "Hello world"
 
-    response.status shouldBe StatusCodes.OK
-    Unmarshal(response).to[String].futureValue shouldBe "Hello world"
+    val unhandledRequest  = HttpRequest().withUri(uri.withPath(Uri.Path("/unknown")))
+    val unhandledResponse = Http()
+      .singleRequest(unhandledRequest)
+      .futureValue
+    unhandledResponse.status shouldBe StatusCodes.NotFound
+
     registry.connections.value() shouldBe 0 // No connection metrics with function handler
-    registry.requests.value() shouldBe 1
+    registry.requests.value() shouldBe 2
+    registry.responses.value(Seq(Dimension("path", "/http"))) shouldBe 1
+    registry.responses.value(Seq(Dimension("path", "unhandled"))) shouldBe 1
 
     binding.terminate(30.seconds).futureValue
   }
 
   it should "support web socket" in new Fixture {
-
     val binding = Http()
       .newMeteredServerAt("localhost", 0, registry)
       .bindFlow(route)
@@ -147,6 +161,7 @@ class HttpMetricsItSpec
     response.futureValue.response.status shouldBe StatusCodes.SwitchingProtocols
     registry.connections.value() shouldBe 1
     registry.requests.value() shouldBe 1
+    registry.responses.value(Seq(Dimension("path", "/ws"))) shouldBe 1
 
     binding.terminate(30.seconds).futureValue
   }

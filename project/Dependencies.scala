@@ -32,18 +32,18 @@ object Dependencies {
   }
 
   object Test {
-    val DropwizardJvm         = "io.dropwizard.metrics"  % "metrics-jvm"           % Versions.Dropwizard   % "it,test"
-    val DropwizardV5Jvm       = "io.dropwizard.metrics5" % "metrics-jvm"           % Versions.DropwizardV5 % "it,test"
-    val Logback               = "ch.qos.logback"         % "logback-classic"       % Versions.Logback      % "it,test"
-    val Mockito               = "org.mockito"            % "mockito-core"          % Versions.Mockito      % "it,test"
-    val PekkoHttpJson         = "org.apache.pekko"      %% "pekko-http-spray-json" % Versions.PekkoHttp    % "it,test"
-    val PekkoHttpTestkit      = "org.apache.pekko"      %% "pekko-http-testkit"    % Versions.PekkoHttp    % "it,test"
-    val PekkoSlf4j            = "org.apache.pekko"      %% "pekko-slf4j"           % Versions.Pekko        % "it,test"
-    val PekkoStreamTestkit    = "org.apache.pekko"      %% "pekko-stream-testkit"  % Versions.Pekko        % "it,test"
-    val PekkoTestkit          = "org.apache.pekko"      %% "pekko-testkit"         % Versions.Pekko        % "it,test"
-    val PrometheusHotspot     = "io.prometheus"          % "simpleclient_hotspot"  % Versions.Prometheus   % "it,test"
+    val DropwizardJvm         = "io.dropwizard.metrics"  % "metrics-jvm"           % Versions.Dropwizard   % "test"
+    val DropwizardV5Jvm       = "io.dropwizard.metrics5" % "metrics-jvm"           % Versions.DropwizardV5 % "test"
+    val Logback               = "ch.qos.logback"         % "logback-classic"       % Versions.Logback      % "test"
+    val Mockito               = "org.mockito"            % "mockito-core"          % Versions.Mockito      % "test"
+    val PekkoHttpJson         = "org.apache.pekko"      %% "pekko-http-spray-json" % Versions.PekkoHttp    % "test"
+    val PekkoHttpTestkit      = "org.apache.pekko"      %% "pekko-http-testkit"    % Versions.PekkoHttp    % "test"
+    val PekkoSlf4j            = "org.apache.pekko"      %% "pekko-slf4j"           % Versions.Pekko        % "test"
+    val PekkoStreamTestkit    = "org.apache.pekko"      %% "pekko-stream-testkit"  % Versions.Pekko        % "test"
+    val PekkoTestkit          = "org.apache.pekko"      %% "pekko-testkit"         % Versions.Pekko        % "test"
+    val PrometheusHotspot     = "io.prometheus"          % "simpleclient_hotspot"  % Versions.Prometheus   % "test"
     val ScalaCollectionCompat =
-      "org.scala-lang.modules" %% "scala-collection-compat" % Versions.ScalaCollectionCompat % "it,test"
-    val ScalaTest = "org.scalatest" %% "scalatest" % Versions.ScalaTest % "it,test"
+      "org.scala-lang.modules" %% "scala-collection-compat" % Versions.ScalaCollectionCompat % "test"
+    val ScalaTest = "org.scalatest" %% "scalatest" % Versions.ScalaTest % "test"
   }
 }

@@ -14,7 +14,7 @@ object Dependencies {
     val Prometheus            = "0.16.0"
     val ScalaCollectionCompat = "2.11.0"
     val ScalaLogging          = "3.9.5"
-    val ScalaTest             = "3.2.17"
+    val ScalaTest             = "3.2.18"
   }
 
   val Datadog          = "com.datadoghq"               % "java-dogstatsd-client" % Versions.Datadog

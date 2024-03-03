@@ -3,18 +3,18 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val Datadog               = "4.2.0"
+    val Datadog               = "4.3.0"
     val Dropwizard            = "4.2.25"
     val DropwizardV5          = "5.0.0"
     val Enumeratum            = "1.7.3"
-    val Logback               = "1.4.14"
+    val Logback               = "1.5.2"
     val Mockito               = "5.9.0"
     val Pekko                 = "1.0.2"
-    val PekkoHttp             = "1.0.0"
+    val PekkoHttp             = "1.0.1"
     val Prometheus            = "0.16.0"
     val ScalaCollectionCompat = "2.11.0"
     val ScalaLogging          = "3.9.5"
-    val ScalaTest             = "3.2.17"
+    val ScalaTest             = "3.2.18"
   }
 
   val Datadog          = "com.datadoghq"               % "java-dogstatsd-client" % Versions.Datadog

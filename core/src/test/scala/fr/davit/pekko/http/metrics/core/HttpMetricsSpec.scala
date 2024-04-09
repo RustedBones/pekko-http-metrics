@@ -24,9 +24,8 @@ import org.apache.pekko.http.scaladsl.server.{RequestContext, RouteResult}
 import org.apache.pekko.stream.scaladsl.Keep
 import org.apache.pekko.stream.testkit.scaladsl.{TestSink, TestSource}
 import org.apache.pekko.testkit.TestKit
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{mock, when}
+import org.scalamock.matchers.ArgCapture.CaptureOne
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -38,23 +37,22 @@ class HttpMetricsSpec
     extends TestKit(ActorSystem("HttpMetricsSpec"))
     with AnyFlatSpecLike
     with Matchers
+    with MockFactory
     with ScalaFutures
     with BeforeAndAfterAll {
 
   implicit val ec: ExecutionContext = system.dispatcher
 
-  private def anyRequestContext() = any(classOf[RequestContext])
-  private def anyRequest()        = any(classOf[HttpRequest])
-
   abstract class Fixture[T] {
-    val metricsHandler: HttpMetricsHandler                    =
-      mock(classOf[HttpMetricsHandler])
-    val server: Function[RequestContext, Future[RouteResult]] =
-      mock(classOf[Function[RequestContext, Future[RouteResult]]])
+    val handler = mock[HttpMetricsHandler]
+    val server  = mockFunction[RequestContext, Future[RouteResult]]
+
+    (handler.onConnection _).expects().returns((): Unit)
+    (handler.onDisconnection _).expects().returns((): Unit)
 
     val (source, sink) = TestSource
       .probe[HttpRequest]
-      .via(HttpMetrics.meterFlow(metricsHandler).join(HttpMetrics.metricsRouteToFlow(server)))
+      .via(HttpMetrics.meterFlow(handler).join(HttpMetrics.metricsRouteToFlow(server)))
       .toMat(TestSink.probe[HttpResponse])(Keep.both)
       .run()
 
@@ -97,80 +95,99 @@ class HttpMetricsSpec
   }
 
   it should "call the metrics handler on handled requests" in new Fixture {
-    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
-    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
-    when(metricsHandler.onRequest(request.capture()))
-      .thenAnswer(_.getArgument(0))
+    val request  = CaptureOne[HttpRequest]()
+    val response = CaptureOne[HttpResponse]()
 
-    when(server.apply(anyRequestContext()))
-      .thenAnswer(invocation => complete(StatusCodes.OK)(invocation.getArgument[RequestContext](0)))
-    when(metricsHandler.onResponse(anyRequest(), response.capture()))
-      .thenAnswer(_.getArgument(1))
+    (handler.onRequest _)
+      .expects(capture(request))
+      .onCall { (req: HttpRequest) => req }
 
+    server
+      .expects(*)
+      .onCall(complete(StatusCodes.OK))
+
+    (handler.onResponse _)
+      .expects(*, capture(response))
+      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
+
+    val expectedRequest = HttpRequest()
     sink.request(1)
-    source.sendNext(HttpRequest())
+    source.sendNext(expectedRequest)
     sink.expectNext()
 
     source.sendComplete()
     sink.expectComplete()
 
-    val expected = Marshal(StatusCodes.OK)
+    val expectedResponse = Marshal(StatusCodes.OK)
       .to[HttpResponse]
       .futureValue
 
-    response.getValue shouldBe expected
+    request.value shouldBe expectedRequest
+    response.value shouldBe expectedResponse
   }
 
   it should "call the metrics handler on rejected requests" in new Fixture {
-    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
-    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
-    when(metricsHandler.onRequest(request.capture()))
-      .thenAnswer(_.getArgument(0))
+    val request  = CaptureOne[HttpRequest]()
+    val response = CaptureOne[HttpResponse]()
+    (handler.onRequest _)
+      .expects(capture(request))
+      .onCall { (req: HttpRequest) => req }
 
-    when(server.apply(anyRequestContext()))
-      .thenAnswer(invocation => reject(invocation.getArgument[RequestContext](0)))
+    server
+      .expects(*)
+      .onCall(reject)
 
-    when(metricsHandler.onResponse(anyRequest(), response.capture()))
-      .thenAnswer(_.getArgument(1))
+    (handler.onResponse _)
+      .expects(*, capture(response))
+      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
 
+    val expectedRequest = HttpRequest()
     sink.request(1)
-    source.sendNext(HttpRequest())
+    source.sendNext(expectedRequest)
     sink.expectNext()
 
     source.sendComplete()
     sink.expectComplete()
 
-    val expected = Marshal(StatusCodes.NotFound -> "The requested resource could not be found.")
+    val expectedResponse = Marshal(StatusCodes.NotFound -> "The requested resource could not be found.")
       .to[HttpResponse]
       .futureValue
       .addAttribute(PathLabeler.key, "unhandled")
-    response.getValue shouldBe expected
+
+    request.value shouldBe expectedRequest
+    response.value shouldBe expectedResponse
   }
 
   it should "call the metrics handler on error requests" in new Fixture {
-    val request: ArgumentCaptor[HttpRequest]   = ArgumentCaptor.forClass(classOf[HttpRequest])
-    val response: ArgumentCaptor[HttpResponse] = ArgumentCaptor.forClass(classOf[HttpResponse])
-    when(metricsHandler.onRequest(request.capture()))
-      .thenAnswer(_.getArgument(0))
+    val request  = CaptureOne[HttpRequest]()
+    val response = CaptureOne[HttpResponse]()
+    (handler.onRequest _)
+      .expects(capture(request))
+      .onCall { (req: HttpRequest) => req }
 
-    when(server.apply(anyRequestContext()))
-      .thenAnswer(invocation => failWith(new Exception("BOOM!"))(invocation.getArgument[RequestContext](0)))
+    server
+      .expects(*)
+      .onCall(failWith(new Exception("BOOM!")))
 
-    when(metricsHandler.onResponse(anyRequest(), response.capture()))
-      .thenAnswer(_.getArgument(1))
+    (handler.onResponse _)
+      .expects(*, capture(response))
+      .onCall { (_: HttpRequest, resp: HttpResponse) => resp }
 
+    val expectedRequest = HttpRequest()
     sink.request(1)
-    source.sendNext(HttpRequest())
+    source.sendNext(expectedRequest)
     sink.expectNext()
 
     source.sendComplete()
     sink.expectComplete()
 
-    val expected = Marshal(StatusCodes.InternalServerError)
+    val expectedResponse = Marshal(StatusCodes.InternalServerError)
       .to[HttpResponse]
       .futureValue
       .addAttribute(PathLabeler.key, "unhandled")
-    response.getValue shouldBe expected
+
+    request.value shouldBe expectedRequest
+    response.value shouldBe expectedResponse
   }
 
 }

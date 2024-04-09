@@ -8,12 +8,12 @@ object Dependencies {
     val DropwizardV5          = "5.0.0"
     val Enumeratum            = "1.7.3"
     val Logback               = "1.5.3"
-    val Mockito               = "5.9.0"
     val Pekko                 = "1.0.2"
     val PekkoHttp             = "1.0.1"
     val Prometheus            = "0.16.0"
     val ScalaCollectionCompat = "2.11.0"
     val ScalaLogging          = "3.9.5"
+    val ScalaMock             = "6.0.0-M2"
     val ScalaTest             = "3.2.18"
   }
 
@@ -35,7 +35,6 @@ object Dependencies {
     val DropwizardJvm         = "io.dropwizard.metrics"  % "metrics-jvm"           % Versions.Dropwizard   % "test"
     val DropwizardV5Jvm       = "io.dropwizard.metrics5" % "metrics-jvm"           % Versions.DropwizardV5 % "test"
     val Logback               = "ch.qos.logback"         % "logback-classic"       % Versions.Logback      % "test"
-    val Mockito               = "org.mockito"            % "mockito-core"          % Versions.Mockito      % "test"
     val PekkoHttpJson         = "org.apache.pekko"      %% "pekko-http-spray-json" % Versions.PekkoHttp    % "test"
     val PekkoHttpTestkit      = "org.apache.pekko"      %% "pekko-http-testkit"    % Versions.PekkoHttp    % "test"
     val PekkoSlf4j            = "org.apache.pekko"      %% "pekko-slf4j"           % Versions.Pekko        % "test"
@@ -44,6 +43,7 @@ object Dependencies {
     val PrometheusHotspot     = "io.prometheus"          % "simpleclient_hotspot"  % Versions.Prometheus   % "test"
     val ScalaCollectionCompat =
       "org.scala-lang.modules" %% "scala-collection-compat" % Versions.ScalaCollectionCompat % "test"
+    val ScalaMock = "org.scalamock" %% "scalamock" % Versions.ScalaMock % "test"
     val ScalaTest = "org.scalatest" %% "scalatest" % Versions.ScalaTest % "test"
   }
 }

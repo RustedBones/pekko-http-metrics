@@ -64,10 +64,10 @@ lazy val `pekko-http-metrics-core` = (project in file("core"))
       Dependencies.PekkoHttp,
       Dependencies.Provided.PekkoStream,
       Dependencies.Test.Logback,
-      Dependencies.Test.Mockito,
       Dependencies.Test.PekkoHttpTestkit,
       Dependencies.Test.PekkoSlf4j,
       Dependencies.Test.PekkoStreamTestkit,
+      Dependencies.Test.ScalaMock,
       Dependencies.Test.ScalaTest
     )
   )

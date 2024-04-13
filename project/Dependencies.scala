@@ -7,7 +7,7 @@ object Dependencies {
     val Dropwizard            = "4.2.25"
     val DropwizardV5          = "5.0.0"
     val Enumeratum            = "1.7.3"
-    val Logback               = "1.5.4"
+    val Logback               = "1.5.5"
     val Pekko                 = "1.0.2"
     val PekkoHttp             = "1.0.1"
     val Prometheus            = "0.16.0"

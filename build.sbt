@@ -21,8 +21,8 @@ ThisBuild / developers       := List(
 
 // scala versions
 val scala3       = "3.3.5"
-val scala213     = "2.13.13"
-val scala212     = "2.12.19"
+val scala213     = "2.13.16"
+val scala212     = "2.12.20"
 val defaultScala = scala3
 
 // github actions

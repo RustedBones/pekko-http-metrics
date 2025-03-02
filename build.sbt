@@ -25,14 +25,15 @@ val scala213     = "2.13.16"
 val defaultScala = scala3
 
 // github actions
+val java21      = JavaSpec.temurin("21")
 val java17      = JavaSpec.temurin("17")
 val java11      = JavaSpec.temurin("11")
-val defaultJava = java17
+val defaultJava = java21
 
 ThisBuild / scalaVersion                 := defaultScala
 ThisBuild / crossScalaVersions           := Seq(scala3, scala213)
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions   := Seq(java17, java11)
+ThisBuild / githubWorkflowJavaVersions   := Seq(java21, java17, java11)
 
 // build
 ThisBuild / tlFatalWarnings         := true

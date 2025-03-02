@@ -22,7 +22,6 @@ ThisBuild / developers       := List(
 // scala versions
 val scala3       = "3.3.5"
 val scala213     = "2.13.16"
-val scala212     = "2.12.20"
 val defaultScala = scala3
 
 // github actions
@@ -31,7 +30,7 @@ val java11      = JavaSpec.temurin("11")
 val defaultJava = java17
 
 ThisBuild / scalaVersion                 := defaultScala
-ThisBuild / crossScalaVersions           := Seq(scala3, scala213, scala212)
+ThisBuild / crossScalaVersions           := Seq(scala3, scala213)
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions   := Seq(java17, java11)
 

@@ -6,15 +6,15 @@ object Dependencies {
     val Datadog               = "4.3.0"
     val Dropwizard            = "4.2.25"
     val DropwizardV5          = "5.0.0"
-    val Enumeratum            = "1.7.3"
+    val Enumeratum            = "1.7.5"
     val Logback               = "1.5.17"
-    val Pekko                 = "1.0.2"
-    val PekkoHttp             = "1.0.1"
+    val Pekko                 = "1.1.3"
+    val PekkoHttp             = "1.1.0"
     val Prometheus            = "0.16.0"
     val ScalaCollectionCompat = "2.11.0"
     val ScalaLogging          = "3.9.5"
     val ScalaMock             = "6.0.0-M2"
-    val ScalaTest             = "3.2.18"
+    val ScalaTest             = "3.2.19"
   }
 
   val Datadog          = "com.datadoghq"               % "java-dogstatsd-client" % Versions.Datadog

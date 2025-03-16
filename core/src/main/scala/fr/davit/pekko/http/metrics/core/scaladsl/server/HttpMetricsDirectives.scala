@@ -22,12 +22,13 @@ import org.apache.pekko.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
 import org.apache.pekko.http.scaladsl.server.directives.BasicDirectives.{mapRequestContext, tprovide}
 import org.apache.pekko.http.scaladsl.server.directives.RouteDirectives.reject
 import org.apache.pekko.http.scaladsl.server.util.Tuple
-import org.apache.pekko.http.scaladsl.server.{Directive, Directive0, PathMatcher, StandardRoute}
+import org.apache.pekko.http.scaladsl.server.{Directive, Directive0, PathMatcher, Route}
 import fr.davit.pekko.http.metrics.core.{AttributeLabeler, HttpMetricsRegistry, PathLabeler}
 
 trait HttpMetricsDirectives {
 
-  def metrics[T <: HttpMetricsRegistry: ToEntityMarshaller](registry: T): StandardRoute = complete(registry)
+  def metrics[T <: HttpMetricsRegistry: ToEntityMarshaller](registry: T): Route =
+    encodeResponse(complete(registry))
 
   def metricsLabeled(labeler: AttributeLabeler, label: String): Directive0 =
     mapResponse(_.addAttribute(labeler.key, label))

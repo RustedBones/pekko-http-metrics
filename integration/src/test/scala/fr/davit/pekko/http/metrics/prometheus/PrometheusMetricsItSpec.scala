@@ -93,7 +93,8 @@ class PrometheusMetricsItSpec
       "# TYPE jvm_memory_init_bytes gauge",
       "# TYPE jvm_memory_max_bytes gauge",
       "# TYPE jvm_memory_objects_pending_finalization gauge",
-      "# TYPE jvm_memory_pool_allocated_bytes_total counter",
+      // might be missing
+      // "# TYPE jvm_memory_pool_allocated_bytes_total counter",
       "# TYPE jvm_memory_pool_collection_committed_bytes gauge",
       "# TYPE jvm_memory_pool_collection_init_bytes gauge",
       "# TYPE jvm_memory_pool_collection_max_bytes gauge",

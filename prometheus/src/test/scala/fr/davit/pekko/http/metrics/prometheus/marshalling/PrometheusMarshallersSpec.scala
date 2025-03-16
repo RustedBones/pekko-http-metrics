@@ -95,8 +95,7 @@ class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
   }
 
   it should "expose metrics as prometheus open-metrics format" in new Fixture {
-    val request = Get().addHeader(Accept(PrometheusMarshallers.OpenMetricsContentType.mediaType))
-    request ~> metrics(registry) ~> check {
+    Get() ~> Accept(PrometheusMarshallers.OpenMetricsContentType.mediaType) ~> metrics(registry) ~> check {
       response.entity.contentType shouldBe PrometheusMarshallers.OpenMetricsContentType
       val text    = responseAs[String]
       // println(text)
@@ -129,8 +128,7 @@ class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
   it should "expose metrics as prometheus protobuf format" in new Fixture {
     import io.prometheus.metrics.expositionformats.generated.com_google_protobuf_4_31_0.Metrics
 
-    val request = Get().addHeader(Accept(PrometheusMarshallers.ProtobufContentType.mediaType))
-    request ~> metrics(registry) ~> check {
+    Get() ~> Accept(PrometheusMarshallers.ProtobufContentType.mediaType) ~> metrics(registry) ~> check {
       response.entity.contentType shouldBe PrometheusMarshallers.ProtobufContentType
       val is = response.entity.dataBytes.runWith(StreamConverters.asInputStream())
       try {

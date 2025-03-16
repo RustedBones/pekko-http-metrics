@@ -16,30 +16,80 @@
 
 package fr.davit.pekko.http.metrics.prometheus.marshalling
 
-import java.io.StringWriter
-
 import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
-import org.apache.pekko.http.scaladsl.model.{ContentType, HttpCharsets, HttpEntity, MediaTypes}
+import org.apache.pekko.http.scaladsl.model.{ContentType, HttpCharsets, MediaType, MediaTypes}
 import fr.davit.pekko.http.metrics.prometheus.PrometheusRegistry
-import io.prometheus.client.exporter.common.TextFormat
+import io.prometheus.metrics.expositionformats.{
+  OpenMetricsTextFormatWriter,
+  PrometheusProtobufWriter,
+  PrometheusTextFormatWriter
+}
+import java.io.ByteArrayOutputStream
+import org.apache.pekko.http.scaladsl.model.MediaType.NotCompressible
 
 trait PrometheusMarshallers {
 
-  val PrometheusContentType: ContentType = {
-    MediaTypes.`text/plain` withParams Map("version" -> "0.0.4") withCharset HttpCharsets.`UTF-8`
+  val OpenMetricsContentType: ContentType = MediaType
+    .applicationWithFixedCharset("openmetrics-text", HttpCharsets.`UTF-8`)
+    .withParams(Map("version" -> "1.0.0"))
+
+  val OpenMetricsMarshaller: ToEntityMarshaller[PrometheusRegistry] = openMetricsMarshaller(false, false)
+  def openMetricsMarshaller(
+      createdTimestampsEnabled: Boolean,
+      exemplarsOnAllMetricTypesEnabled: Boolean
+  ): ToEntityMarshaller[PrometheusRegistry] = {
+    val writer = new OpenMetricsTextFormatWriter(createdTimestampsEnabled, exemplarsOnAllMetricTypesEnabled)
+    Marshaller
+      .byteArrayMarshaller(OpenMetricsContentType)
+      .compose { registry =>
+        val output = new ByteArrayOutputStream()
+        writer.write(output, registry.underlying.scrape())
+        output.toByteArray()
+      }
   }
 
-  implicit val marshaller: ToEntityMarshaller[PrometheusRegistry] = {
-    Marshaller.opaque { registry =>
-      val output = new StringWriter()
-      try {
-        TextFormat.write004(output, registry.underlying.metricFamilySamples)
-        HttpEntity(output.toString).withContentType(PrometheusContentType)
-      } finally {
-        output.close()
+  val TextContentType: ContentType = MediaTypes.`text/plain`
+    .withParams(Map("version" -> "0.0.4"))
+    .withCharset(HttpCharsets.`UTF-8`)
+
+  val TextMarshaller: ToEntityMarshaller[PrometheusRegistry]                                  = textMarshaller(false)
+  def textMarshaller(writeCreatedTimestamps: Boolean): ToEntityMarshaller[PrometheusRegistry] = {
+    val writer = new PrometheusTextFormatWriter(writeCreatedTimestamps)
+    Marshaller
+      .byteArrayMarshaller(TextContentType)
+      .compose { registry =>
+        val output = new ByteArrayOutputStream()
+        writer.write(output, registry.underlying.scrape())
+        output.toByteArray()
       }
-    }
   }
+
+  val ProtobufContentType: ContentType = MediaType
+    .applicationBinary("application/vnd.google.protobuf", NotCompressible)
+    .withParams(
+      Map(
+        "proto"    -> "io.prometheus.client.MetricFamily",
+        "encoding" -> "delimited"
+      )
+    )
+
+  val ProtobufMarshaller: ToEntityMarshaller[PrometheusRegistry] = {
+    val writer = new PrometheusProtobufWriter()
+    Marshaller
+      .byteArrayMarshaller(ProtobufContentType)
+      .compose { registry =>
+        val output = new ByteArrayOutputStream()
+        writer.write(output, registry.underlying.scrape())
+        output.toByteArray()
+      }
+  }
+
+  implicit val PrometheusRegistryMarshaller: ToEntityMarshaller[PrometheusRegistry] =
+    Marshaller.oneOf(
+      TextMarshaller,
+      OpenMetricsMarshaller,
+      ProtobufMarshaller
+    )
 }
 
 object PrometheusMarshallers extends PrometheusMarshallers

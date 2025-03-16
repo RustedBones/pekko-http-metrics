@@ -18,22 +18,24 @@ package fr.davit.pekko.http.metrics.prometheus
 
 trait PrometheusConverters {
 
-  implicit def convertCounter(counter: io.prometheus.client.Counter): PrometheusCounter =
+  implicit def convertCounter(counter: io.prometheus.metrics.core.metrics.Counter): PrometheusCounter =
     new PrometheusCounter(counter)
 
-  implicit def convertGauge(gauge: io.prometheus.client.Gauge): PrometheusGauge =
+  implicit def convertGauge(gauge: io.prometheus.metrics.core.metrics.Gauge): PrometheusGauge =
     new PrometheusGauge(gauge)
 
-  implicit def convertSummaryTimer(summary: io.prometheus.client.Summary): PrometheusSummaryTimer =
+  implicit def convertSummaryTimer(summary: io.prometheus.metrics.core.metrics.Summary): PrometheusSummaryTimer =
     new PrometheusSummaryTimer(summary)
 
-  implicit def convertHistogramTimer(histogram: io.prometheus.client.Histogram): PrometheusHistogramTimer =
+  implicit def convertHistogramTimer(
+      histogram: io.prometheus.metrics.core.metrics.Histogram
+  ): PrometheusHistogramTimer =
     new PrometheusHistogramTimer(histogram)
 
-  implicit def convertSummary(summary: io.prometheus.client.Summary): PrometheusSummary =
+  implicit def convertSummary(summary: io.prometheus.metrics.core.metrics.Summary): PrometheusSummary =
     new PrometheusSummary(summary)
 
-  implicit def convertHistogram(histogram: io.prometheus.client.Histogram): PrometheusHistogram =
+  implicit def convertHistogram(histogram: io.prometheus.metrics.core.metrics.Histogram): PrometheusHistogram =
     new PrometheusHistogram(histogram)
 
 }

@@ -360,7 +360,7 @@ libraryDependencies += "fr.davit" %% "pekko-http-metrics-prometheus" % <version>
 Create your registry
 
 ```scala
-import io.prometheus.client.CollectorRegistry
+import io.prometheus.metrics.core.metrics.CollectorRegistry
 import fr.davit.pekko.http.metrics.prometheus.{PrometheusRegistry, PrometheusSettings}
 
 val prometheus: CollectorRegistry = ... // your prometheus registry
@@ -373,7 +373,7 @@ You can fine-tune the `histogram/summary` configuration of `buckets/quantiles` f
  
 ```scala
 settings
-  .withDurationConfig(Buckets(1, 2, 3, 5, 8, 13, 21, 34))
+  .withDurationConfig(ClassicBuckets(1, 2, 3, 5, 8, 13, 21, 34))
   .withReceivedBytesConfig(Quantiles(0.5, 0.75, 0.9, 0.95, 0.99))
   .withSentBytesConfig(PrometheusSettings.DefaultQuantiles)
 ```
@@ -388,16 +388,26 @@ val route = (get & path("metrics"))(metrics(registry))
 ```
 
 All metrics from the prometheus collector registry will be exposed.
-You can find some external exporters [here](https://github.com/prometheus/client_java). For instance, to expose some JVM
-metrics, you have to add the dedicated client dependency and initialize/register it to your collector registry:
+Marshalling [format](https://prometheus.github.io/client_java/exporters/formats/) depends on the `Accept`/`Content-Type` header sent by the client:
+
+* `Content-Type: text/plain`: Prometheus text format
+* `Content-Type: application/openmetrics-text`: OpenMetrics text format
+* `Content-Type: application/vnd.google.protobuf`: Prometheus protobuf format
+
+No `Accept` header or matching several (eg `Accept: application/*`) will take the 1st matching type from the above list.
+
+
+You can find some instrumentations [here](https://prometheus.github.io/client_java). For instance, to expose some JVM
+metrics, you have to add the dedicated dependency and initialize/register it to your collector registry:
 
 ```sbt
-libraryDependencies += "io.prometheus" % "simpleclient_hotspot" % <vesion>
+libraryDependencies += "io.prometheus" % "rometheus-metrics-instrumentation-jvm" % <vesion>
 ```
 
 ```scala
-import io.prometheus.client.hotspot.DefaultExports
+import io.prometheus.metrics.model.registry.PrometheusRegistry
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 
-val prometheus: CollectorRegistry = ... // your prometheus registry
-DefaultExports.register(prometheus)  // or DefaultExports.initialize() to use the default registry
+val prometheus: PrometheusRegistry = ??? // your prometheus registry
+JvmMetrics.builder().register(prometheus)  // or JvmMetrics.builder().register() to use the default registry
 ```

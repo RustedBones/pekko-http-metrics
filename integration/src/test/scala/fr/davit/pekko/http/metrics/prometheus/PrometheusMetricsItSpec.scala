@@ -19,7 +19,7 @@ package fr.davit.pekko.http.metrics.prometheus
 import fr.davit.pekko.http.metrics.core.HttpMetrics.*
 import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.*
 import fr.davit.pekko.http.metrics.prometheus.marshalling.PrometheusMarshallers.*
-import io.prometheus.client.hotspot.DefaultExports
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, StatusCodes, Uri}
@@ -55,7 +55,7 @@ class PrometheusMetricsItSpec
       .withIncludeMethodDimension(true)
       .withIncludePathDimension(true)
       .withIncludeStatusDimension(true)
-    DefaultExports.initialize() // JVM
+    JvmMetrics.builder().register()
     val registry = PrometheusRegistry(settings = settings)
 
     val route: Route = (get & path("metrics"))(metrics(registry))
@@ -85,23 +85,25 @@ class PrometheusMetricsItSpec
       "# TYPE jvm_buffer_pool_used_bytes gauge",
       "# TYPE jvm_classes_currently_loaded gauge",
       "# TYPE jvm_classes_loaded_total counter",
-      "# TYPE jvm_classes_unloaded_total counter",
+      // might be missing if GC did not trigger ?
+      // "# TYPE jvm_classes_unloaded_total counter",
+      "# TYPE jvm_compilation_time_seconds_total counter",
       "# TYPE jvm_gc_collection_seconds summary",
-      "# TYPE jvm_info gauge",
-      "# TYPE jvm_memory_bytes_committed gauge",
-      "# TYPE jvm_memory_bytes_init gauge",
-      "# TYPE jvm_memory_bytes_max gauge",
-      "# TYPE jvm_memory_bytes_used gauge",
+      "# TYPE jvm_memory_committed_bytes gauge",
+      "# TYPE jvm_memory_init_bytes gauge",
+      "# TYPE jvm_memory_max_bytes gauge",
       "# TYPE jvm_memory_objects_pending_finalization gauge",
       "# TYPE jvm_memory_pool_allocated_bytes_total counter",
-      "# TYPE jvm_memory_pool_bytes_committed gauge",
-      "# TYPE jvm_memory_pool_bytes_init gauge",
-      "# TYPE jvm_memory_pool_bytes_max gauge",
-      "# TYPE jvm_memory_pool_bytes_used gauge",
       "# TYPE jvm_memory_pool_collection_committed_bytes gauge",
       "# TYPE jvm_memory_pool_collection_init_bytes gauge",
       "# TYPE jvm_memory_pool_collection_max_bytes gauge",
       "# TYPE jvm_memory_pool_collection_used_bytes gauge",
+      "# TYPE jvm_memory_pool_committed_bytes gauge",
+      "# TYPE jvm_memory_pool_init_bytes gauge",
+      "# TYPE jvm_memory_pool_max_bytes gauge",
+      "# TYPE jvm_memory_pool_used_bytes gauge",
+      "# TYPE jvm_memory_used_bytes gauge",
+      "# TYPE jvm_runtime_info gauge",
       "# TYPE jvm_threads_current gauge",
       "# TYPE jvm_threads_daemon gauge",
       "# TYPE jvm_threads_deadlocked gauge",
@@ -110,12 +112,9 @@ class PrometheusMetricsItSpec
       "# TYPE jvm_threads_started_total counter",
       "# TYPE jvm_threads_state gauge",
       "# TYPE pekko_http_connections_active gauge",
-      "# TYPE pekko_http_connections_created gauge",
       "# TYPE pekko_http_connections_total counter",
       "# TYPE pekko_http_requests_active gauge",
-      "# TYPE pekko_http_requests_created gauge",
       "# TYPE pekko_http_requests_size_bytes histogram",
-      "# TYPE pekko_http_requests_size_bytes_created gauge",
       "# TYPE pekko_http_requests_total counter",
       "# TYPE process_cpu_seconds_total counter",
       "# TYPE process_max_fds gauge",
@@ -124,7 +123,6 @@ class PrometheusMetricsItSpec
       "# TYPE process_start_time_seconds gauge",
       "# TYPE process_virtual_memory_bytes gauge"
     )
-
     binding.terminate(30.seconds).futureValue
     Http()
   }

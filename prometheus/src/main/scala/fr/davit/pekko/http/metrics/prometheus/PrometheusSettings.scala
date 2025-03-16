@@ -46,11 +46,21 @@ object Quantiles {
   }
 }
 
-final case class Buckets(bs: List[Double]) extends HistogramConfig with TimerConfig
+sealed trait Buckets extends HistogramConfig with TimerConfig
 
-object Buckets {
-  def apply(b: Double*): Buckets = Buckets(b.toList)
+final case class ClassicBuckets(bs: List[Double]) extends Buckets
+object ClassicBuckets {
+  def apply(b: Double*): ClassicBuckets = ClassicBuckets(b.toList)
 }
+final case class ClassicLinearBuckets(start: Double, width: Double, count: Int) extends Buckets
+final case class ClassicExponentialBuckets(start: Double, factor: Double, count: Int) extends Buckets
+final case class NativeBuckets(
+    initialSchema: Int = 5,
+    minZeroThreshold: Double = Math.pow(2.0, -128),
+    maxZeroThreshold: Double = Math.pow(2.0, -128),
+    maxNumberOfBuckets: Int = 160,
+    resetDuration: FiniteDuration = Duration.Zero
+) extends Buckets
 
 object PrometheusMetricsNames {
 
@@ -98,14 +108,14 @@ final case class PrometheusSettings(
 object PrometheusSettings {
 
   // generic durations adapted to network durations in seconds
-  val DurationBuckets: Buckets = {
-    Buckets(0.005, 0.01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10)
+  val DurationBuckets: ClassicBuckets = {
+    ClassicBuckets(0.005, 0.01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10)
   }
 
-  // generic buckets adapted to network messages sized
-  val BytesBuckets: Buckets = {
+  // generic buckets adapted to network messages size
+  val BytesBuckets: ClassicBuckets = {
     val buckets = Range(0, 1000, 100) ++ Range(1000, 10000, 1000) ++ Range(10000, 100000, 10000)
-    Buckets(buckets.map(_.toDouble).toList)
+    ClassicBuckets(buckets.map(_.toDouble).toList)
   }
 
   // basic quantiles

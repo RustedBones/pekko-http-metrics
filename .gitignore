@@ -3,6 +3,7 @@
 .idea/
 .bloop/
 .metals/
+.vscode/
 out/
 target/
 project/target/

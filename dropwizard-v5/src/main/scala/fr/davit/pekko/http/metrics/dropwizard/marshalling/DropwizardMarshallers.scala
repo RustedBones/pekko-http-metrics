@@ -16,28 +16,18 @@
 
 package fr.davit.pekko.http.metrics.dropwizard.marshalling
 
-import java.io.StringWriter
-
 import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
-import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity}
 import com.fasterxml.jackson.databind.ObjectMapper
 import fr.davit.pekko.http.metrics.dropwizard.DropwizardRegistry
+import org.apache.pekko.http.scaladsl.model.MediaTypes
 
 trait DropwizardMarshallers {
 
   implicit val registryToEntityMarshaller: ToEntityMarshaller[DropwizardRegistry] = {
-
     val writer = new ObjectMapper().writer()
-
-    Marshaller.opaque { registry =>
-      val output = new StringWriter()
-      try {
-        writer.writeValue(output, registry.underlying)
-        HttpEntity(output.toString).withContentType(ContentTypes.`application/json`)
-      } finally {
-        output.close()
-      }
-    }
+    Marshaller
+      .stringMarshaller(MediaTypes.`application/json`)
+      .compose(registry => writer.writeValueAsString(registry.underlying))
   }
 }
 

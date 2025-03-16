@@ -20,48 +20,48 @@ import fr.davit.pekko.http.metrics.core._
 
 import scala.concurrent.duration.FiniteDuration
 
-class PrometheusCounter(counter: io.prometheus.client.Counter) extends Counter {
+class PrometheusCounter(counter: io.prometheus.metrics.core.metrics.Counter) extends Counter {
 
   override def inc(dimensions: Seq[Dimension]): Unit = {
-    counter.labels(dimensions.map(_.label): _*).inc()
+    counter.labelValues(dimensions.map(_.label): _*).inc()
   }
 }
 
-class PrometheusGauge(gauge: io.prometheus.client.Gauge) extends Gauge {
+class PrometheusGauge(gauge: io.prometheus.metrics.core.metrics.Gauge) extends Gauge {
 
   override def inc(dimensions: Seq[Dimension] = Seq.empty): Unit = {
-    gauge.labels(dimensions.map(_.label): _*).inc()
+    gauge.labelValues(dimensions.map(_.label): _*).inc()
   }
 
   override def dec(dimensions: Seq[Dimension] = Seq.empty): Unit = {
-    gauge.labels(dimensions.map(_.label): _*).dec()
+    gauge.labelValues(dimensions.map(_.label): _*).dec()
   }
 }
 
-class PrometheusSummaryTimer(summary: io.prometheus.client.Summary) extends Timer {
+class PrometheusSummaryTimer(summary: io.prometheus.metrics.core.metrics.Summary) extends Timer {
 
   override def observe(duration: FiniteDuration, dimensions: Seq[Dimension] = Seq.empty): Unit = {
-    summary.labels(dimensions.map(_.label): _*).observe(duration.toMillis.toDouble / 1000.0)
+    summary.labelValues(dimensions.map(_.label): _*).observe(duration.toMillis.toDouble / 1000.0)
   }
 }
 
-class PrometheusHistogramTimer(summary: io.prometheus.client.Histogram) extends Timer {
+class PrometheusHistogramTimer(summary: io.prometheus.metrics.core.metrics.Histogram) extends Timer {
 
   override def observe(duration: FiniteDuration, dimensions: Seq[Dimension] = Seq.empty): Unit = {
-    summary.labels(dimensions.map(_.label): _*).observe(duration.toMillis.toDouble / 1000.0)
+    summary.labelValues(dimensions.map(_.label): _*).observe(duration.toMillis.toDouble / 1000.0)
   }
 }
 
-class PrometheusSummary(summary: io.prometheus.client.Summary) extends Histogram {
+class PrometheusSummary(summary: io.prometheus.metrics.core.metrics.Summary) extends Histogram {
 
   override def update[T](value: T, dimensions: Seq[Dimension] = Seq.empty)(implicit numeric: Numeric[T]): Unit = {
-    summary.labels(dimensions.map(_.label): _*).observe(numeric.toDouble(value))
+    summary.labelValues(dimensions.map(_.label): _*).observe(numeric.toDouble(value))
   }
 }
 
-class PrometheusHistogram(histogram: io.prometheus.client.Histogram) extends Histogram {
+class PrometheusHistogram(histogram: io.prometheus.metrics.core.metrics.Histogram) extends Histogram {
 
   override def update[T](value: T, dimensions: Seq[Dimension] = Seq.empty)(implicit numeric: Numeric[T]): Unit = {
-    histogram.labels(dimensions.map(_.label): _*).observe(numeric.toDouble(value))
+    histogram.labelValues(dimensions.map(_.label): _*).observe(numeric.toDouble(value))
   }
 }

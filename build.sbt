@@ -3,7 +3,7 @@ val username  = "RustedBones"
 val repo      = "pekko-http-metrics"
 val githubUrl = s"https://github.com/$username/$repo"
 
-ThisBuild / tlBaseVersion          := "1.1"
+ThisBuild / tlBaseVersion          := "2.0"
 ThisBuild / organization           := "fr.davit"
 ThisBuild / organizationName       := "Michel Davit"
 ThisBuild / startYear              := Some(2019)
@@ -130,7 +130,8 @@ lazy val `pekko-http-metrics-prometheus` = (project in file("prometheus"))
   .dependsOn(`pekko-http-metrics-core`)
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.PrometheusCommon,
+      Dependencies.PrometheusCore,
+      Dependencies.PrometheusExpositionFormats,
       Dependencies.Provided.PekkoStream,
       Dependencies.Test.Logback,
       Dependencies.Test.PekkoHttpTestkit,
@@ -159,7 +160,7 @@ lazy val integration = (project in file("integration"))
       Dependencies.Test.PekkoSlf4j,
       Dependencies.Test.PekkoStreamTestkit,
       Dependencies.Test.PekkoTestkit,
-      Dependencies.Test.PrometheusHotspot,
+      Dependencies.Test.PrometheusJvm,
       Dependencies.Test.ScalaTest
     )
   )

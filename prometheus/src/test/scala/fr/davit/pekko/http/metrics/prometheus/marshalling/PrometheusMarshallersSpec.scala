@@ -20,33 +20,30 @@ import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import fr.davit.pekko.http.metrics.core.{Dimension, StatusGroupLabeler}
 import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.metrics
 import fr.davit.pekko.http.metrics.prometheus.{PrometheusRegistry, PrometheusSettings}
-import io.prometheus.client.CollectorRegistry
+import io.prometheus.metrics.model.{registry => prometheus}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.stream.scaladsl.StreamConverters
 
 class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with ScalatestRouteTest with BeforeAndAfterAll {
 
   trait Fixture extends PrometheusMarshallers {
 
     val registry = PrometheusRegistry(
-      new CollectorRegistry(),
+      new prometheus.PrometheusRegistry(),
       PrometheusSettings.default.withIncludeStatusDimension(true)
     )
 
-    io.prometheus.client.Counter
-      .build("other_metric", "An other metric")
+    io.prometheus.metrics.core.metrics.Counter
+      .builder()
+      .name("other_metric")
+      .help("An other metric")
       .register(registry.underlying)
-  }
 
-  override def afterAll(): Unit = {
-    cleanUp()
-    super.afterAll()
-  }
-
-  "PrometheusMarshallers" should "expose metrics as prometheus format" in new Fixture {
     // register labeled metrics so they appear at least once
     // use metrics so they appear in the report
     val dimensions = Seq(Dimension(StatusGroupLabeler.name, "2xx"))
@@ -59,9 +56,16 @@ class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
     registry.responsesSize.update(10, dimensions)
     registry.connections.inc()
     registry.connectionsActive.inc()
+  }
 
+  override def afterAll(): Unit = {
+    cleanUp()
+    super.afterAll()
+  }
+
+  "PrometheusMarshallers" should "expose metrics as text format" in new Fixture {
     Get() ~> metrics(registry) ~> check {
-      response.entity.contentType shouldBe PrometheusMarshallers.PrometheusContentType
+      response.entity.contentType shouldBe PrometheusMarshallers.TextContentType
       val text    = responseAs[String]
       // println(text)
       val metrics = text
@@ -72,29 +76,85 @@ class PrometheusMarshallersSpec extends AnyFlatSpec with Matchers with Scalatest
       metrics should contain theSameElementsAs Seq(
         "pekko_http_requests_total",
         "pekko_http_requests_active",
-        "pekko_http_requests_created",
         "pekko_http_requests_size_bytes_bucket",
         "pekko_http_requests_size_bytes_count",
         "pekko_http_requests_size_bytes_sum",
-        "pekko_http_requests_size_bytes_created",
         "pekko_http_responses_total",
-        "pekko_http_responses_created",
         "pekko_http_responses_errors_total",
-        "pekko_http_responses_errors_created",
         "pekko_http_responses_duration_seconds_bucket",
         "pekko_http_responses_duration_seconds_count",
         "pekko_http_responses_duration_seconds_sum",
-        "pekko_http_responses_duration_seconds_created",
         "pekko_http_responses_size_bytes_bucket",
         "pekko_http_responses_size_bytes_count",
         "pekko_http_responses_size_bytes_sum",
-        "pekko_http_responses_size_bytes_created",
         "pekko_http_connections_total",
         "pekko_http_connections_active",
-        "pekko_http_connections_created",
-        "other_metric_total",
-        "other_metric_created"
+        "other_metric_total"
       )
+    }
+  }
+
+  it should "expose metrics as prometheus open-metrics format" in new Fixture {
+    val request = Get().addHeader(Accept(PrometheusMarshallers.OpenMetricsContentType.mediaType))
+    request ~> metrics(registry) ~> check {
+      response.entity.contentType shouldBe PrometheusMarshallers.OpenMetricsContentType
+      val text    = responseAs[String]
+      // println(text)
+      val metrics = text
+        .split('\n')
+        .filterNot(_.startsWith("#"))
+        .map(_.takeWhile(c => c != ' ' && c != '{'))
+        .distinct
+      metrics should contain theSameElementsAs Seq(
+        "pekko_http_requests_total",
+        "pekko_http_requests_active",
+        "pekko_http_requests_size_bytes_bucket",
+        "pekko_http_requests_size_bytes_count",
+        "pekko_http_requests_size_bytes_sum",
+        "pekko_http_responses_total",
+        "pekko_http_responses_errors_total",
+        "pekko_http_responses_duration_seconds_bucket",
+        "pekko_http_responses_duration_seconds_count",
+        "pekko_http_responses_duration_seconds_sum",
+        "pekko_http_responses_size_bytes_bucket",
+        "pekko_http_responses_size_bytes_count",
+        "pekko_http_responses_size_bytes_sum",
+        "pekko_http_connections_total",
+        "pekko_http_connections_active",
+        "other_metric_total"
+      )
+    }
+  }
+
+  it should "expose metrics as prometheus protobuf format" in new Fixture {
+    import io.prometheus.metrics.expositionformats.generated.com_google_protobuf_4_29_3.Metrics
+
+    val request = Get().addHeader(Accept(PrometheusMarshallers.ProtobufContentType.mediaType))
+    request ~> metrics(registry) ~> check {
+      response.entity.contentType shouldBe PrometheusMarshallers.ProtobufContentType
+      val is = response.entity.dataBytes.runWith(StreamConverters.asInputStream())
+      try {
+        val metrics = Iterator
+          .unfold(is)(is => Option(Metrics.MetricFamily.parseDelimitedFrom(is)).map((_, is)))
+          // .tapEach(println)
+          .map(_.getName())
+          .toList
+
+        metrics should contain theSameElementsAs Seq(
+          "pekko_http_requests_total",
+          "pekko_http_requests_active",
+          "pekko_http_requests_size_bytes",
+          "pekko_http_responses_total",
+          "pekko_http_responses_errors_total",
+          "pekko_http_responses_duration_seconds",
+          "pekko_http_responses_size_bytes",
+          "pekko_http_connections_total",
+          "pekko_http_connections_active",
+          "other_metric_total"
+        )
+      } finally {
+        is.close()
+      }
     }
   }
 }

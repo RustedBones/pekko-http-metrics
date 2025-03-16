@@ -3,7 +3,7 @@ val username  = "RustedBones"
 val repo      = "pekko-http-metrics"
 val githubUrl = s"https://github.com/$username/$repo"
 
-ThisBuild / tlBaseVersion          := "1.2"
+ThisBuild / tlBaseVersion          := "2.0"
 ThisBuild / organization           := "fr.davit"
 ThisBuild / organizationName       := "Michel Davit"
 ThisBuild / startYear              := Some(2019)

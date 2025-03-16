@@ -18,11 +18,10 @@ The following implementations are supported:
 
 | Version | Release date | Pekka Http version | Scala versions        |
 |---------|--------------|--------------------|-----------------------|
+| `2.0.0` | 2025-03-16   | `1.1.0`            | `3.3`, `2.13`         |
 | `1.1.0` | 2025-03-02   | `1.1.0`            | `3.3`, `2.13`         |
 | `1.0.1` | 2024-04-09   | `1.0.1`            | `3.3`, `2.13`, `2.12` |
 | `1.0.0` | 2023-08-14   | `1.0.0`            | `3.3`, `2.13`, `2.12` |
-
-The complete list can be found in the [CHANGELOG](CHANGELOG.md) file.
 
 ## Getting pekko-http-metrics
 
@@ -240,21 +239,21 @@ See datadog's [documentation](https://github.com/dataDog/java-dogstatsd-client) 
 
 ### [Dropwizard](https://metrics.dropwizard.io/)
 
-| metric             | name               |
-|--------------------|--------------------|
-| requests           | requests           |
-| requests active    | requests.active    |
-| requests failures  | requests.failures  |
-| requests size      | requests.bytes     |
-| responses          | responses          |
-| responses errors   | responses.errors   |
-| responses duration | responses.duration |
-| responses size     | responses.bytes    |
-| connections        | connections        |
-| connections active | connections.active |
+| metric             | name                            |
+|--------------------|---------------------------------|
+| requests           | ${namespace}.requests           |
+| requests active    | ${namespace}.requests.active    |
+| requests failures  | ${namespace}.requests.failures  |
+| requests size      | ${namespace}.requests.bytes     |
+| responses          | ${namespace}.responses          |
+| responses errors   | ${namespace}.responses.errors   |
+| responses duration | ${namespace}.responses.duration |
+| responses size     | ${namespace}.responses.bytes    |
+| connections        | ${namespace}.connections        |
+| connections active | ${namespace}.connections.active |
 
 **Important**: The `DropwizardRegistry` does not support labels.
-This feature will be available with dropwizard `v5`, which development is paused at the moment.
+This feature will be available with dropwizard `v5` (still in pre-release phase).
 
 Add to your `build.sbt`:
 
@@ -306,18 +305,18 @@ val registry = DropwizardRegistry(dropwizard, settings)
 
 ### [Graphite](https://graphiteapp.org/)
 
-| metric             | name               |
-|--------------------|--------------------|
-| requests           | requests           |
-| requests active    | requests.active    |
-| requests failures  | requests.failures  |
-| requests size      | requests.bytes     |
-| responses          | responses          |
-| responses errors   | responses.errors   |
-| responses duration | responses.duration |
-| response size      | responses.bytes    |
-| connections        | connections        |
-| connections active | connections.active |
+| metric             | name                            |
+|--------------------|---------------------------------|
+| requests           | ${namespace}.requests           |
+| requests active    | ${namespace}.requests.active    |
+| requests failures  | ${namespace}.requests.failures  |
+| requests size      | ${namespace}.requests.bytes     |
+| responses          | ${namespace}.responses          |
+| responses errors   | ${namespace}.responses.errors   |
+| responses duration | ${namespace}.responses.duration |
+| response size      | ${namespace}.responses.bytes    |
+| connections        | ${namespace}.connections        |
+| connections active | ${namespace}.connections.active |
 
 Add to your `build.sbt`:
 
@@ -338,18 +337,18 @@ val registry = GraphiteRegistry(carbonClient, settings) // or PrometheusRegistry
 
 ### [Prometheus](http://prometheus.io/)
 
-| metric             | name                       |
-|--------------------|----------------------------|
-| requests           | requests_total             |
-| requests active    | requests_active            |
-| requests failures  | requests_failures_total    |
-| requests size      | requests_size_bytes        |
-| responses          | responses_total            |
-| responses errors   | responses_errors_total     |
-| responses duration | responses_duration_seconds |
-| responses size     | responses_size_bytes       |
-| connections        | connections_total          |
-| connections active | connections_active         |
+| metric             | name                                    |
+|--------------------|-----------------------------------------|
+| requests           | ${namespace}_requests_total             |
+| requests active    | ${namespace}_requests_active            |
+| requests failures  | ${namespace}_requests_failures_total    |
+| requests size      | ${namespace}_requests_size_bytes        |
+| responses          | ${namespace}_responses_total            |
+| responses errors   | ${namespace}_responses_errors_total     |
+| responses duration | ${namespace}_responses_duration_seconds |
+| responses size     | ${namespace}_responses_size_bytes       |
+| connections        | ${namespace}_connections_total          |
+| connections active | ${namespace}_connections_active         |
 
 Add to your `build.sbt`:
 

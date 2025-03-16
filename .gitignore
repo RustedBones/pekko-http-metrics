@@ -1,11 +1,12 @@
 *.class
 *.log
+metals.sbt
 .idea/
 .bloop/
+.bsp
 .metals/
 .vscode/
 out/
 target/
 project/target/
-project/metals.sbt
-.bsp
+

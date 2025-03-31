@@ -13,7 +13,7 @@ object Dependencies {
     val Prometheus            = "1.3.6"
     val ScalaCollectionCompat = "2.13.0"
     val ScalaLogging          = "3.9.5"
-    val ScalaMock             = "6.2.0"
+    val ScalaMock             = "7.3.0"
     val ScalaTest             = "3.2.19"
   }
 

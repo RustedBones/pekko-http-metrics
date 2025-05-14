@@ -10,7 +10,7 @@ object Dependencies {
     val Logback               = "1.5.17"
     val Pekko                 = "1.1.3"
     val PekkoHttp             = "1.1.0"
-    val Prometheus            = "1.3.6"
+    val Prometheus            = "1.3.7"
     val ScalaCollectionCompat = "2.13.0"
     val ScalaLogging          = "3.9.5"
     val ScalaMock             = "6.2.0"

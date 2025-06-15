@@ -3,15 +3,14 @@ val username  = "RustedBones"
 val repo      = "pekko-http-metrics"
 val githubUrl = s"https://github.com/$username/$repo"
 
-ThisBuild / tlBaseVersion          := "2.0"
-ThisBuild / organization           := "fr.davit"
-ThisBuild / organizationName       := "Michel Davit"
-ThisBuild / startYear              := Some(2019)
-ThisBuild / licenses               := Seq(License.Apache2)
-ThisBuild / homepage               := Some(url(githubUrl))
-ThisBuild / scmInfo                := Some(ScmInfo(url(githubUrl), s"git@github.com:$username/$repo.git"))
-ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeLegacy
-ThisBuild / developers             := List(
+ThisBuild / tlBaseVersion    := "2.0"
+ThisBuild / organization     := "fr.davit"
+ThisBuild / organizationName := "Michel Davit"
+ThisBuild / startYear        := Some(2019)
+ThisBuild / licenses         := Seq(License.Apache2)
+ThisBuild / homepage         := Some(url(githubUrl))
+ThisBuild / scmInfo          := Some(ScmInfo(url(githubUrl), s"git@github.com:$username/$repo.git"))
+ThisBuild / developers       := List(
   Developer(
     id = s"$username",
     name = "Michel Davit",

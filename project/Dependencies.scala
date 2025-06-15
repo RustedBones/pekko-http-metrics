@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val Datadog               = "4.4.3"
+    val Datadog               = "4.4.4"
     val Dropwizard            = "4.2.30"
     val DropwizardV5          = "5.0.0"
     val Enumeratum            = "1.7.6"

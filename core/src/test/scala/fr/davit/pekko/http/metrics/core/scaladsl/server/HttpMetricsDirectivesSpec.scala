@@ -16,17 +16,34 @@
 
 package fr.davit.pekko.http.metrics.core.scaladsl.server
 
-import org.apache.pekko.http.scaladsl.marshalling.PredefinedToEntityMarshallers._
+import fr.davit.pekko.http.metrics.core.AttributeLabeler
+import fr.davit.pekko.http.metrics.core.PathLabeler
+import fr.davit.pekko.http.metrics.core.TestRegistry
+import org.apache.pekko.http.scaladsl.marshalling.PredefinedToEntityMarshallers.*
+import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.headers.HttpEncoding
+import org.apache.pekko.http.scaladsl.model.headers.HttpEncodings
+import org.apache.pekko.http.scaladsl.model.headers.`Accept-Encoding`
+import org.apache.pekko.http.scaladsl.model.headers.`Content-Encoding`
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
-import fr.davit.pekko.http.metrics.core.{AttributeLabeler, PathLabeler, TestRegistry}
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.Matcher
 import org.scalatest.matchers.should.Matchers
+import org.apache.pekko.http.scaladsl.coding.Coders
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import scala.concurrent.Await
+import scala.concurrent.duration.*
 
 class HttpMetricsDirectivesSpec extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
   import HttpMetricsDirectives._
+
+  def haveNoContentEncoding: Matcher[HttpResponse]                       =
+    be(None).compose { (_: HttpResponse).header[`Content-Encoding`] }
+  def haveContentEncoding(encoding: HttpEncoding): Matcher[HttpResponse] =
+    be(Some(`Content-Encoding`(encoding))).compose { (_: HttpResponse).header[`Content-Encoding`] }
 
   "HttpMetricsDirectives" should "expose the registry" in {
     implicit val marshaller = StringMarshaller.compose[TestRegistry](r => s"active: ${r.requestsActive.value()}")
@@ -38,6 +55,29 @@ class HttpMetricsDirectivesSpec extends AnyFlatSpec with Matchers with Scalatest
     }
 
     Get("/metrics") ~> route ~> check {
+      response should haveNoContentEncoding
+      responseAs[String] shouldBe "active: 1"
+    }
+
+    // gzip
+    Get("/metrics") ~> `Accept-Encoding`(HttpEncodings.gzip) ~> route ~> check {
+      response should haveContentEncoding(HttpEncodings.gzip)
+      val decodedResponse = Coders.Gzip.decodeMessage(response)
+      val data            = Await.result(Unmarshal(decodedResponse).to[String], 1.second)
+      data shouldBe "active: 1"
+    }
+
+    // deflate
+    Get("/metrics") ~> `Accept-Encoding`(HttpEncodings.deflate) ~> route ~> check {
+      response should haveContentEncoding(HttpEncodings.deflate)
+      val decodedResponse = Coders.Deflate.decodeMessage(response)
+      val data            = Await.result(Unmarshal(decodedResponse).to[String], 1.second)
+      data shouldBe "active: 1"
+    }
+
+    // unknown -> accept and skip encoding
+    Get("/metrics") ~> `Accept-Encoding`(HttpEncodings.`x-zip`) ~> route ~> check {
+      response should haveNoContentEncoding
       responseAs[String] shouldBe "active: 1"
     }
   }

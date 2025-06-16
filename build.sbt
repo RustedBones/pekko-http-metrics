@@ -1,3 +1,5 @@
+import com.typesafe.tools.mima.core.*
+
 // General info
 val username  = "RustedBones"
 val repo      = "pekko-http-metrics"
@@ -40,7 +42,14 @@ ThisBuild / tlFatalWarnings := true
 ThisBuild / tlJdkRelease    := Some(8)
 
 // mima
-ThisBuild / mimaBinaryIssueFilters ++= Seq()
+ThisBuild / mimaBinaryIssueFilters ++= Seq(
+  ProblemFilters.exclude[IncompatibleResultTypeProblem](
+    "fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.metrics"
+  ),
+  ProblemFilters.exclude[DirectMissingMethodProblem](
+    "fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.metrics"
+  )
+)
 
 lazy val `pekko-http-metrics` = (project in file("."))
   .aggregate(

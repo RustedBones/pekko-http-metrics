@@ -19,8 +19,6 @@ package fr.davit.pekko.http.metrics.core.scaladsl.server
 import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
 import org.apache.pekko.http.scaladsl.server.Directives._
 import org.apache.pekko.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
-import org.apache.pekko.http.scaladsl.server.directives.BasicDirectives.{mapRequestContext, tprovide}
-import org.apache.pekko.http.scaladsl.server.directives.RouteDirectives.reject
 import org.apache.pekko.http.scaladsl.server.util.Tuple
 import org.apache.pekko.http.scaladsl.server.{Directive, Directive0, PathMatcher, StandardRoute}
 import fr.davit.pekko.http.metrics.core.{AttributeLabeler, HttpMetricsRegistry, PathLabeler}

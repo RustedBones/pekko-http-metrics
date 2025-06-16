@@ -27,6 +27,8 @@ object Dependencies {
   val PrometheusCore              = "io.prometheus"          % "prometheus-metrics-core" % Versions.Prometheus
   val PrometheusExpositionFormats =
     "io.prometheus" % "prometheus-metrics-exposition-formats" % Versions.Prometheus
+  val PrometheusExpositionTextFormats =
+    "io.prometheus" % "prometheus-metrics-exposition-textformats" % Versions.Prometheus
   val ScalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % Versions.ScalaLogging
 
   object Provided {

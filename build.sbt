@@ -131,6 +131,7 @@ lazy val `pekko-http-metrics-prometheus` = (project in file("prometheus"))
     libraryDependencies ++= Seq(
       Dependencies.PrometheusCore,
       Dependencies.PrometheusExpositionFormats,
+      Dependencies.PrometheusExpositionTextFormats,
       Dependencies.Provided.PekkoStream,
       Dependencies.Test.Logback,
       Dependencies.Test.PekkoHttpTestkit,

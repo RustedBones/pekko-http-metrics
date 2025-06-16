@@ -33,12 +33,16 @@ trait PrometheusMarshallers {
     .applicationWithFixedCharset("openmetrics-text", HttpCharsets.`UTF-8`)
     .withParams(Map("version" -> "1.0.0"))
 
-  val OpenMetricsMarshaller: ToEntityMarshaller[PrometheusRegistry] = openMetricsMarshaller(false, false)
+  val OpenMetricsMarshaller: ToEntityMarshaller[PrometheusRegistry] = openMetricsMarshaller()
   def openMetricsMarshaller(
-      createdTimestampsEnabled: Boolean,
-      exemplarsOnAllMetricTypesEnabled: Boolean
+      createdTimestampsEnabled: Boolean = false,
+      exemplarsOnAllMetricTypesEnabled: Boolean = false
   ): ToEntityMarshaller[PrometheusRegistry] = {
-    val writer = new OpenMetricsTextFormatWriter(createdTimestampsEnabled, exemplarsOnAllMetricTypesEnabled)
+    val writer = OpenMetricsTextFormatWriter
+      .builder()
+      .setCreatedTimestampsEnabled(createdTimestampsEnabled)
+      .setExemplarsOnAllMetricTypesEnabled(exemplarsOnAllMetricTypesEnabled)
+      .build()
     Marshaller
       .byteArrayMarshaller(OpenMetricsContentType)
       .compose { registry =>
@@ -52,9 +56,12 @@ trait PrometheusMarshallers {
     .withParams(Map("version" -> "0.0.4"))
     .withCharset(HttpCharsets.`UTF-8`)
 
-  val TextMarshaller: ToEntityMarshaller[PrometheusRegistry]                                  = textMarshaller(false)
-  def textMarshaller(writeCreatedTimestamps: Boolean): ToEntityMarshaller[PrometheusRegistry] = {
-    val writer = new PrometheusTextFormatWriter(writeCreatedTimestamps)
+  val TextMarshaller: ToEntityMarshaller[PrometheusRegistry]                                            = textMarshaller()
+  def textMarshaller(includeCreatedTimestamps: Boolean = false): ToEntityMarshaller[PrometheusRegistry] = {
+    val writer = PrometheusTextFormatWriter
+      .builder()
+      .setIncludeCreatedTimestamps(includeCreatedTimestamps)
+      .build()
     Marshaller
       .byteArrayMarshaller(TextContentType)
       .compose { registry =>

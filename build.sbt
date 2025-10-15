@@ -22,7 +22,7 @@ ThisBuild / developers       := List(
 )
 
 // scala versions
-val scala3       = "3.3.6"
+val scala3       = "3.3.7"
 val scala213     = "2.13.16"
 val defaultScala = scala3
 

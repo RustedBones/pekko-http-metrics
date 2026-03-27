@@ -14,7 +14,7 @@ object Dependencies {
     val ScalaCollectionCompat = "2.13.0"
     val ScalaLogging          = "3.9.5"
     val ScalaMock             = "7.3.2"
-    val ScalaTest             = "3.2.19"
+    val ScalaTest             = "3.2.20"
   }
 
   val Datadog                     = "com.datadoghq"          % "java-dogstatsd-client"   % Versions.Datadog

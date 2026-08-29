@@ -5,7 +5,7 @@ object Dependencies {
   object Versions {
     val Datadog               = "4.4.4"
     val Dropwizard            = "4.2.32"
-    val DropwizardV5          = "5.0.0"
+    val DropwizardV5          = "5.0.8"
     val Enumeratum            = "1.7.6"
     val Logback               = "1.5.18"
     val Pekko                 = "1.1.4"

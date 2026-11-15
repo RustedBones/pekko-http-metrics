@@ -16,9 +16,9 @@
 
 package fr.davit.pekko.http.metrics.prometheus
 
-import fr.davit.pekko.http.metrics.core._
+import fr.davit.pekko.http.metrics.core.*
 import fr.davit.pekko.http.metrics.prometheus.Quantiles.Quantile
-import io.prometheus.metrics.model.{registry => prometheus}
+import io.prometheus.metrics.model.registry as prometheus
 
 object PrometheusRegistry {
 
@@ -38,7 +38,7 @@ object PrometheusRegistry {
 
     def buckets(buckets: Buckets): io.prometheus.metrics.core.metrics.Histogram.Builder = buckets match {
       case ClassicBuckets(bs)                                                                                  =>
-        builder.classicOnly().classicUpperBounds(bs: _*)
+        builder.classicOnly().classicUpperBounds(bs*)
       case ClassicLinearBuckets(start, width, count)                                                           =>
         builder.classicOnly().classicLinearUpperBounds(start, width, count)
       case ClassicExponentialBuckets(start, factor, count)                                                     =>
@@ -74,8 +74,8 @@ object PrometheusRegistry {
 class PrometheusRegistry(settings: PrometheusSettings, val underlying: prometheus.PrometheusRegistry)
     extends HttpMetricsRegistry(settings) {
 
-  import PrometheusConverters._
-  import PrometheusRegistry._
+  import PrometheusConverters.*
+  import PrometheusRegistry.*
 
   private val methodDimension = if (settings.includeMethodDimension) Some(MethodLabeler.name) else None
   private val pathDimension   = if (settings.includePathDimension) Some(PathLabeler.name) else None
@@ -119,7 +119,7 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: prometheu
           .name(metricName(settings.namespace, settings.metricsNames.requestsSize))
           .help(help)
           .labelNames(serverDimensions ++ requestsDimensions: _*)
-          .quantiles(qs: _*)
+          .quantiles(qs*)
           .maxAgeSeconds(maxAge.toSeconds)
           .numberOfAgeBuckets(ageBuckets)
           .register(underlying)
@@ -159,7 +159,7 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: prometheu
           .name(metricName(settings.namespace, settings.metricsNames.responsesDuration))
           .help(help)
           .labelNames(serverDimensions ++ requestsDimensions ++ responsesDimensions: _*)
-          .quantiles(qs: _*)
+          .quantiles(qs*)
           .maxAgeSeconds(maxAge.toSeconds)
           .numberOfAgeBuckets(ageBuckets)
           .register(underlying)
@@ -184,7 +184,7 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: prometheu
           .name(metricName(settings.namespace, settings.metricsNames.responsesSize))
           .help(help)
           .labelNames(serverDimensions ++ requestsDimensions ++ responsesDimensions: _*)
-          .quantiles(qs: _*)
+          .quantiles(qs*)
           .maxAgeSeconds(maxAge.toSeconds)
           .numberOfAgeBuckets(ageBuckets)
           .register(underlying)
@@ -204,13 +204,13 @@ class PrometheusRegistry(settings: PrometheusSettings, val underlying: prometheu
     .builder()
     .name(metricName(settings.namespace, settings.metricsNames.connections))
     .help("Total TCP connections")
-    .labelNames(serverDimensions: _*)
+    .labelNames(serverDimensions*)
     .register(underlying)
 
   lazy val connectionsActive: Gauge = io.prometheus.metrics.core.metrics.Gauge
     .builder()
     .name(metricName(settings.namespace, settings.metricsNames.connectionsActive))
     .help("Active TCP connections")
-    .labelNames(serverDimensions: _*)
+    .labelNames(serverDimensions*)
     .register(underlying)
 }

@@ -20,8 +20,8 @@ import fr.davit.pekko.http.metrics.core.Dimension
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class DropwizardRegistrySpec extends AnyFlatSpec with Matchers {
 

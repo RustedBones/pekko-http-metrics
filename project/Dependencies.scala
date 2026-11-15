@@ -1,20 +1,19 @@
-import sbt._
+import sbt.*
 
 object Dependencies {
 
   object Versions {
-    val Datadog               = "4.4.4"
-    val Dropwizard            = "4.2.32"
-    val DropwizardV5          = "5.0.0"
-    val Enumeratum            = "1.7.6"
-    val Logback               = "1.5.18"
-    val Pekko                 = "1.1.4"
-    val PekkoHttp             = "1.2.0"
-    val Prometheus            = "1.3.8"
-    val ScalaCollectionCompat = "2.13.0"
-    val ScalaLogging          = "3.9.5"
-    val ScalaMock             = "7.3.2"
-    val ScalaTest             = "3.2.19"
+    val Datadog      = "4.4.4"
+    val Dropwizard   = "4.2.32"
+    val DropwizardV5 = "5.0.0"
+    val Enumeratum   = "1.7.6"
+    val Logback      = "1.5.18"
+    val Pekko        = "2.0.0"
+    val PekkoHttp    = "2.0.0"
+    val Prometheus   = "1.3.8"
+    val ScalaLogging = "3.9.5"
+    val ScalaMock    = "7.3.2"
+    val ScalaTest    = "3.2.19"
   }
 
   val Datadog                     = "com.datadoghq"          % "java-dogstatsd-client"   % Versions.Datadog
@@ -36,18 +35,16 @@ object Dependencies {
   }
 
   object Test {
-    val DropwizardJvm         = "io.dropwizard.metrics"  % "metrics-jvm"                            % Versions.Dropwizard   % "test"
-    val DropwizardV5Jvm       = "io.dropwizard.metrics5" % "metrics-jvm"                            % Versions.DropwizardV5 % "test"
-    val Logback               = "ch.qos.logback"         % "logback-classic"                        % Versions.Logback      % "test"
-    val PekkoHttpJson         = "org.apache.pekko"      %% "pekko-http-spray-json"                  % Versions.PekkoHttp    % "test"
-    val PekkoHttpTestkit      = "org.apache.pekko"      %% "pekko-http-testkit"                     % Versions.PekkoHttp    % "test"
-    val PekkoSlf4j            = "org.apache.pekko"      %% "pekko-slf4j"                            % Versions.Pekko        % "test"
-    val PekkoStreamTestkit    = "org.apache.pekko"      %% "pekko-stream-testkit"                   % Versions.Pekko        % "test"
-    val PekkoTestkit          = "org.apache.pekko"      %% "pekko-testkit"                          % Versions.Pekko        % "test"
-    val PrometheusJvm         = "io.prometheus"          % "prometheus-metrics-instrumentation-jvm" % Versions.Prometheus   % "test"
-    val ScalaCollectionCompat =
-      "org.scala-lang.modules" %% "scala-collection-compat" % Versions.ScalaCollectionCompat % "test"
-    val ScalaMock = "org.scalamock" %% "scalamock" % Versions.ScalaMock % "test"
-    val ScalaTest = "org.scalatest" %% "scalatest" % Versions.ScalaTest % "test"
+    val DropwizardJvm      = "io.dropwizard.metrics"  % "metrics-jvm"                            % Versions.Dropwizard   % "test"
+    val DropwizardV5Jvm    = "io.dropwizard.metrics5" % "metrics-jvm"                            % Versions.DropwizardV5 % "test"
+    val Logback            = "ch.qos.logback"         % "logback-classic"                        % Versions.Logback      % "test"
+    val PekkoHttpJson      = "org.apache.pekko"      %% "pekko-http-spray-json"                  % Versions.PekkoHttp    % "test"
+    val PekkoHttpTestkit   = "org.apache.pekko"      %% "pekko-http-testkit"                     % Versions.PekkoHttp    % "test"
+    val PekkoSlf4j         = "org.apache.pekko"      %% "pekko-slf4j"                            % Versions.Pekko        % "test"
+    val PekkoStreamTestkit = "org.apache.pekko"      %% "pekko-stream-testkit"                   % Versions.Pekko        % "test"
+    val PekkoTestkit       = "org.apache.pekko"      %% "pekko-testkit"                          % Versions.Pekko        % "test"
+    val PrometheusJvm      = "io.prometheus"          % "prometheus-metrics-instrumentation-jvm" % Versions.Prometheus   % "test"
+    val ScalaMock          = "org.scalamock"         %% "scalamock"                              % Versions.ScalaMock    % "test"
+    val ScalaTest          = "org.scalatest"         %% "scalatest"                              % Versions.ScalaTest    % "test"
   }
 }

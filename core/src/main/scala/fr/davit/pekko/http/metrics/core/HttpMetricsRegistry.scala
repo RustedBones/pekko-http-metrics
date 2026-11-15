@@ -16,7 +16,7 @@
 
 package fr.davit.pekko.http.metrics.core
 
-import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.stream.scaladsl.{Flow, Sink}
 import org.apache.pekko.util.ByteString
 
@@ -28,7 +28,7 @@ object HttpMetricsRegistry {
 
 abstract class HttpMetricsRegistry(settings: HttpMetricsSettings) extends HttpMetricsHandler {
 
-  import HttpMetricsRegistry._
+  import HttpMetricsRegistry.*
 
   private val requestLabelers: Seq[HttpRequestLabeler] = {
     val builder = Seq.newBuilder[HttpRequestLabeler]

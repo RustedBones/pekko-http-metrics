@@ -29,7 +29,7 @@ object MeterStage {
 private[metrics] class MeterStage(metricsHandler: HttpMetricsHandler)
     extends GraphStage[BidiShape[HttpRequest, HttpRequest, HttpResponse, HttpResponse]] {
 
-  import MeterStage._
+  import MeterStage.*
 
   private val requestIn   = Inlet[HttpRequest]("MeterStage.requestIn")
   private val requestOut  = Outlet[HttpRequest]("MeterStage.requestOut")

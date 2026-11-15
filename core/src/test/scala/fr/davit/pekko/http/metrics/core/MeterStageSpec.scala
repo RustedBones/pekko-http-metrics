@@ -53,10 +53,10 @@ class MeterStageSpec
     val (requestIn, requestOut, responseIn, responseOut) = RunnableGraph
       .fromGraph(
         GraphDSL.createGraph(
-          TestSource.probe[HttpRequest],
-          TestSink.probe[HttpRequest],
-          TestSource.probe[HttpResponse],
-          TestSink.probe[HttpResponse]
+          TestSource[HttpRequest](),
+          TestSink[HttpRequest](),
+          TestSource[HttpResponse](),
+          TestSink[HttpResponse]()
         )((_, _, _, _)) { implicit builder => (reqIn, reqOut, respIn, respOut) =>
           import GraphDSL.Implicits.*
           val meter = builder.add(new MeterStage(handler))

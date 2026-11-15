@@ -20,12 +20,12 @@ import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import fr.davit.pekko.http.metrics.core.{Dimension, StatusGroupLabeler}
 import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.metrics
 import fr.davit.pekko.http.metrics.prometheus.{PrometheusRegistry, PrometheusSettings}
-import io.prometheus.metrics.model.{registry => prometheus}
+import io.prometheus.metrics.model.registry as prometheus
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import org.apache.pekko.http.scaladsl.model.headers.Accept
 import org.apache.pekko.stream.scaladsl.StreamConverters
 

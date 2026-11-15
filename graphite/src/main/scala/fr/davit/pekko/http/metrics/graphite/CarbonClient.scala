@@ -17,19 +17,22 @@
 package fr.davit.pekko.http.metrics.graphite
 
 import java.time.{Clock, Instant}
+import java.util.concurrent.atomic.AtomicBoolean
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.event.Logging
 import org.apache.pekko.stream.scaladsl.{Flow, Keep, RestartFlow, Sink, Source, Tcp}
-import org.apache.pekko.stream.{OverflowStrategy, QueueOfferResult, RestartSettings}
+import org.apache.pekko.stream.{CompletionStrategy, OverflowStrategy, RestartSettings}
 import org.apache.pekko.util.ByteString
 import fr.davit.pekko.http.metrics.core.Dimension
 
 import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.duration.*
 
 object CarbonClient {
+
+  private case object Complete
 
   def apply(host: String, port: Int)(implicit system: ActorSystem): CarbonClient = new CarbonClient(host, port)
 }
@@ -55,10 +58,17 @@ class CarbonClient(host: String, port: Int)(implicit system: ActorSystem) extend
     RestartFlow.withBackoff(settings)(() => Tcp().outgoingConnection(host, port))
   }
 
-  private val queue = Source
-    .queue[ByteString](19, OverflowStrategy.dropHead)
+  private val closed = new AtomicBoolean(false)
+
+  private val (source, completion) = Source
+    .actorRef[ByteString](
+      completionMatcher = { case CarbonClient.Complete => CompletionStrategy.draining },
+      failureMatcher = PartialFunction.empty,
+      bufferSize = 19,
+      overflowStrategy = OverflowStrategy.dropHead
+    )
     .via(connection)
-    .toMat(Sink.ignore)(Keep.left)
+    .toMat(Sink.ignore)(Keep.both)
     .run()
 
   def publish[T](
@@ -68,17 +78,14 @@ class CarbonClient(host: String, port: Int)(implicit system: ActorSystem) extend
       ts: Instant = Instant
         .now(clock)
   ): Unit = {
-    // it's reasonable to block until the message in enqueued
-    Await.result(queue.offer(serialize(name, value, dimensions, ts)), Duration.Inf) match {
-      case QueueOfferResult.Enqueued    => logger.debug("Metric {} enqueued", name)
-      case QueueOfferResult.Dropped     => logger.debug("Metric {} dropped", name)
-      case QueueOfferResult.Failure(e)  => logger.error(e, s"Failed publishing metric $name")
-      case QueueOfferResult.QueueClosed => throw new Exception("Failed publishing metric to closed carbon client")
-    }
+    if (closed.get()) throw new Exception("Failed publishing metric to closed carbon client")
+    // when the buffer is full, the oldest metric is dropped
+    source ! serialize(name, value, dimensions, ts)
+    logger.debug("Metric {} enqueued", name)
   }
 
   override def close(): Unit = {
-    queue.complete()
-    val _ = Await.result(queue.watchCompletion(), Duration.Inf)
+    if (closed.compareAndSet(false, true)) source ! CarbonClient.Complete
+    val _ = Await.result(completion, Duration.Inf)
   }
 }

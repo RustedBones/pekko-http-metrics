@@ -17,14 +17,14 @@
 package fr.davit.pekko.http.metrics.prometheus
 
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
-import fr.davit.pekko.http.metrics.core._
-import io.prometheus.metrics.model.{registry => prometheus}
+import fr.davit.pekko.http.metrics.core.*
+import io.prometheus.metrics.model.registry as prometheus
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import io.prometheus.metrics.model.snapshots.CounterSnapshot
 import io.prometheus.metrics.model.snapshots.MetricSnapshot
 import io.prometheus.metrics.model.snapshots.Labels
@@ -72,7 +72,7 @@ class PrometheusRegistrySpec extends AnyFlatSpec with Matchers {
     implicit private class MetricsSnapshotOps(m: MetricSnapshot) {
       def name: String                                       = m.getMetadata().getName()
       def dataPoint(dims: Seq[Dimension]): DataPointSnapshot = {
-        val labels = Labels.of(dims.flatMap(d => Seq(d.name, d.label)): _*)
+        val labels = Labels.of(dims.flatMap(d => Seq(d.name, d.label))*)
         m.getDataPoints().asScala.find(pt => pt.getLabels() == labels).get
       }
     }
@@ -111,7 +111,7 @@ class PrometheusRegistrySpec extends AnyFlatSpec with Matchers {
         .withIncludeMethodDimension(true)
         .withIncludePathDimension(true)
         .withIncludeStatusDimension(true)
-        .withServerDimensions(serverDimensions: _*)
+        .withServerDimensions(serverDimensions*)
         .withCustomDimensions(CustomRequestLabeler, CustomResponseLabeler)
     )
   }

@@ -38,7 +38,7 @@ import scala.concurrent.duration.*
 
 class HttpMetricsDirectivesSpec extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
-  import HttpMetricsDirectives._
+  import HttpMetricsDirectives.*
 
   def haveNoContentEncoding: Matcher[HttpResponse]                       =
     be(None).compose { (_: HttpResponse).header[`Content-Encoding`] }

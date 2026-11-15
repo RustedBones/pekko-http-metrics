@@ -19,14 +19,14 @@ package fr.davit.pekko.http.metrics.dropwizard.marshalling
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import fr.davit.pekko.http.metrics.core.Dimension
-import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives._
+import fr.davit.pekko.http.metrics.core.scaladsl.server.HttpMetricsDirectives.*
 import fr.davit.pekko.http.metrics.dropwizard.DropwizardRegistry
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import spray.json.{DefaultJsonProtocol, JsValue, RootJsonFormat}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class DropwizardMarshallersSpec extends AnyFlatSpec with Matchers with ScalatestRouteTest with BeforeAndAfterAll {
 

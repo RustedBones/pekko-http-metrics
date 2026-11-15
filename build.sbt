@@ -5,7 +5,7 @@ val username  = "RustedBones"
 val repo      = "pekko-http-metrics"
 val githubUrl = s"https://github.com/$username/$repo"
 
-ThisBuild / tlBaseVersion    := "2.1"
+ThisBuild / tlBaseVersion    := "3.0"
 ThisBuild / organization     := "fr.davit"
 ThisBuild / organizationName := "Michel Davit"
 ThisBuild / startYear        := Some(2019)
@@ -22,24 +22,23 @@ ThisBuild / developers       := List(
 )
 
 // scala versions
-val scala3       = "3.3.6"
-val scala213     = "2.13.16"
+val scala3       = "3.3.9"
+val scala213     = "2.13.18"
 val defaultScala = scala3
 
 // github actions
 val java21      = JavaSpec.temurin("21")
 val java17      = JavaSpec.temurin("17")
-val java11      = JavaSpec.temurin("11")
 val defaultJava = java21
 
 ThisBuild / scalaVersion                 := defaultScala
 ThisBuild / crossScalaVersions           := Seq(scala3, scala213)
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions   := Seq(java21, java17, java11)
+ThisBuild / githubWorkflowJavaVersions   := Seq(java21, java17)
 
 // build
 ThisBuild / tlFatalWarnings := true
-ThisBuild / tlJdkRelease    := Some(8)
+ThisBuild / tlJdkRelease    := Some(17)
 
 // mima
 ThisBuild / mimaBinaryIssueFilters ++= Seq(
@@ -103,7 +102,6 @@ lazy val `pekko-http-metrics-dropwizard` = (project in file("dropwizard"))
       Dependencies.Test.PekkoSlf4j,
       Dependencies.Test.PekkoStreamTestkit,
       Dependencies.Test.PekkoTestkit,
-      Dependencies.Test.ScalaCollectionCompat,
       Dependencies.Test.ScalaTest
     )
   )
@@ -121,7 +119,6 @@ lazy val `pekko-http-metrics-dropwizard-v5` = (project in file("dropwizard-v5"))
       Dependencies.Test.PekkoSlf4j,
       Dependencies.Test.PekkoStreamTestkit,
       Dependencies.Test.PekkoTestkit,
-      Dependencies.Test.ScalaCollectionCompat,
       Dependencies.Test.ScalaTest
     )
   )

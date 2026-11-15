@@ -26,7 +26,7 @@ object DropwizardMetrics {
   implicit class RichMetricsName(val metricName: MetricName) extends AnyVal {
 
     def tagged(dimensions: Seq[Dimension]): MetricName =
-      metricName.tagged(dimensions.flatMap(d => Seq(d.name, d.label)): _*)
+      metricName.tagged(dimensions.flatMap(d => Seq(d.name, d.label))*)
 
   }
 }
@@ -39,7 +39,7 @@ class DropwizardCounter(namespace: String, name: String)(implicit registry: Metr
     extends DropwizardMetrics(namespace, name)
     with Counter {
 
-  import DropwizardMetrics._
+  import DropwizardMetrics.*
 
   override def inc(dimensions: Seq[Dimension] = Seq.empty): Unit = {
     registry.counter(metricName.tagged(dimensions)).inc()
@@ -50,7 +50,7 @@ class DropwizardGauge(namespace: String, name: String)(implicit registry: Metric
     extends DropwizardMetrics(namespace, name)
     with Gauge {
 
-  import DropwizardMetrics._
+  import DropwizardMetrics.*
 
   override def inc(dimensions: Seq[Dimension] = Seq.empty): Unit = {
     registry.counter(metricName.tagged(dimensions)).inc()
@@ -65,7 +65,7 @@ class DropwizardTimer(namespace: String, name: String)(implicit registry: Metric
     extends DropwizardMetrics(namespace, name)
     with Timer {
 
-  import DropwizardMetrics._
+  import DropwizardMetrics.*
 
   override def observe(duration: FiniteDuration, dimensions: Seq[Dimension] = Seq.empty): Unit = {
     registry.timer(metricName.tagged(dimensions)).update(duration.length, duration.unit)
@@ -76,7 +76,7 @@ class DropwizardHistogram(namespace: String, name: String)(implicit registry: Me
     extends DropwizardMetrics(namespace, name)
     with Histogram {
 
-  import DropwizardMetrics._
+  import DropwizardMetrics.*
 
   override def update[T](value: T, dimensions: Seq[Dimension] = Seq.empty)(implicit numeric: Numeric[T]): Unit = {
     registry.histogram(metricName.tagged(dimensions)).update(numeric.toLong(value))

@@ -19,7 +19,7 @@ package fr.davit.pekko.http.metrics.core
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ClassicActorSystemProvider
 import org.apache.pekko.http.scaladsl.HttpExt
-import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.server.{Directives, ExceptionHandler, RejectionHandler, Route}
 import org.apache.pekko.http.scaladsl.settings.RoutingSettings
 import org.apache.pekko.stream.scaladsl.{BidiFlow, Flow}
@@ -65,7 +65,7 @@ object HttpMetrics {
     val exceptionHandler = ExceptionHandler.default(routingSettings).andThen(markUnhandled _)
     val rejectionHandler = RejectionHandler.default.mapRejectionResponse(markUnhandled)
 
-    import org.apache.pekko.http.scaladsl.server.directives.ExecutionDirectives._
+    import org.apache.pekko.http.scaladsl.server.directives.ExecutionDirectives.*
     Route.toFunction {
       (handleExceptions(exceptionHandler) & handleRejections(rejectionHandler)) {
         route

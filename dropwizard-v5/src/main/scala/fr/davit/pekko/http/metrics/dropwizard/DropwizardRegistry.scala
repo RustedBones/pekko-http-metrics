@@ -16,7 +16,7 @@
 
 package fr.davit.pekko.http.metrics.dropwizard
 
-import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, _}
+import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, *}
 import io.dropwizard.metrics5.MetricRegistry
 
 object DropwizardRegistry {

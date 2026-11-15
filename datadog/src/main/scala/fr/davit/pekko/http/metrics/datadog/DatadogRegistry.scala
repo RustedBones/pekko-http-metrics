@@ -17,7 +17,7 @@
 package fr.davit.pekko.http.metrics.datadog
 
 import com.timgroup.statsd.StatsDClient
-import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, _}
+import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, *}
 
 object DatadogRegistry {
 

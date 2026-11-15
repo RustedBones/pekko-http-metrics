@@ -16,7 +16,7 @@
 
 package fr.davit.pekko.http.metrics.graphite
 
-import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, _}
+import fr.davit.pekko.http.metrics.core.{HttpMetricsSettings, *}
 
 object GraphiteRegistry {
 

@@ -22,7 +22,7 @@ import fr.davit.pekko.http.metrics.core.{Dimension, HttpMessageLabeler, HttpMetr
 import fr.davit.pekko.http.metrics.prometheus.Quantiles.Quantile
 
 import scala.collection.immutable
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /** SamplingConfig configures the metric sampling.
   *   - For Summary, use [[Quantiles]]

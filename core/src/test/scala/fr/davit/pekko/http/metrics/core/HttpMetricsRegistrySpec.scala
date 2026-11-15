@@ -17,7 +17,7 @@
 package fr.davit.pekko.http.metrics.core
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.headers.{`User-Agent`, ProductVersion}
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
@@ -28,7 +28,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class HttpMetricsRegistrySpec
     extends TestKit(ActorSystem("HttpMetricsRegistrySpec"))

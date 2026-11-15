@@ -27,7 +27,6 @@ import org.apache.pekko.stream.{Materializer, SystemMaterializer}
 import fr.davit.pekko.http.metrics.core.{HttpMetrics, HttpMetricsHandler}
 import org.apache.pekko.http.scaladsl.server.Route
 
-import scala.annotation.nowarn
 import scala.concurrent.Future
 
 /** Metered server builder
@@ -45,8 +44,6 @@ final case class HttpMetricsServerBuilder(
     system: ClassicActorSystemProvider,
     materializer: Materializer
 ) extends ServerBuilder {
-
-  private lazy val http: HttpExt = Http(system.classicSystem)
 
   def meterTo(metricsHandler: HttpMetricsHandler): HttpMetricsServerBuilder                 =
     copy(metricsHandler = metricsHandler)
@@ -68,61 +65,40 @@ final case class HttpMetricsServerBuilder(
   // Define an extra bind method for Route to ensure proper metric instrumentation.
   // This must be favored from the implicit RouteResult.routeToFunction
   // as erasure creates conflict with ServerBuilder.bind definition, add DummyImplicit parameter
-  def bind(route: Route)(implicit ev: DummyImplicit): Future[ServerBinding] = {
+  def bind(route: Route)(implicit ev: DummyImplicit): Future[ServerBinding] =
     bind(HttpMetrics.metricsRouteToFunction(route)(system))
-  }
 
-  @nowarn("msg=deprecated")
-  override def bind(f: HttpRequest => Future[HttpResponse]): Future[ServerBinding] = {
-    val meteredHandler = HttpMetrics.meterFunction(f, metricsHandler)(materializer.executionContext)
-    http.bindAndHandleAsync(
-      meteredHandler,
-      interface,
-      port,
-      context,
-      settings,
-      parallelism = 0,
-      log
-    )(materializer)
-  }
+  override def bind(f: HttpRequest => Future[HttpResponse]): Future[ServerBinding] =
+    underlying.bind(HttpMetrics.meterFunction(f, metricsHandler)(materializer.executionContext))
 
-  @nowarn("msg=deprecated")
-  override def bindSync(handler: HttpRequest => HttpResponse): Future[ServerBinding] = {
-    val meteredHandler = HttpMetrics.meterFunctionSync(handler, metricsHandler)
-    http.bindAndHandleSync(
-      meteredHandler,
-      interface,
-      port,
-      context,
-      settings,
-      log
-    )(materializer)
-  }
+  override def bindSync(handler: HttpRequest => HttpResponse): Future[ServerBinding] =
+    underlying.bindSync(HttpMetrics.meterFunctionSync(handler, metricsHandler))
 
   // Define an extra bind method for Route to ensure proper metric instrumentation.
   // This must be favored from the implicit RouteResult.routeToFlow
-  def bindFlow(route: Route): Future[ServerBinding] = {
+  def bindFlow(route: Route): Future[ServerBinding] =
     bindFlow(HttpMetrics.metricsRouteToFlow(route)(system))
-  }
 
-  @nowarn("msg=deprecated")
-  override def bindFlow(handlerFlow: Flow[HttpRequest, HttpResponse, ?]): Future[ServerBinding] = {
-    val meteredFlow = HttpMetrics.meterFlow(metricsHandler).join(handlerFlow)
-    http.bindAndHandle(
-      meteredFlow,
-      interface,
-      port,
-      context,
-      settings,
-      log
-    )(materializer)
-  }
+  override def bindFlow(handlerFlow: Flow[HttpRequest, HttpResponse, ?]): Future[ServerBinding] =
+    underlying.bindFlow(HttpMetrics.meterFlow(metricsHandler).join(handlerFlow))
 
-  @nowarn("msg=deprecated")
   override def connectionSource(): Source[Http.IncomingConnection, Future[ServerBinding]] =
-    http
-      .bind(interface, port, context, settings, log)
+    underlying
+      .connectionSource()
       .map(c => c.copy(_flow = c._flow.join(HttpMetrics.meterFlow(metricsHandler))))
+
+  // delegate binding to the pekko-http server builder configured with the same settings
+  private def underlying: ServerBuilder = {
+    val builder = Http(system.classicSystem)
+      .newServerAt(interface, port)
+      .logTo(log)
+      .withSettings(settings)
+      .withMaterializer(materializer)
+    context match {
+      case https: HttpsConnectionContext => builder.enableHttps(https)
+      case _                             => builder
+    }
+  }
 }
 
 object HttpMetricsServerBuilder {

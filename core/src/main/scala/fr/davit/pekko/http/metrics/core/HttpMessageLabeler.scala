@@ -16,7 +16,7 @@
 
 package fr.davit.pekko.http.metrics.core
 
-import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.*
 import fr.davit.pekko.http.metrics.core.HttpMessageLabeler.Unlabelled
 
 object HttpMessageLabeler {

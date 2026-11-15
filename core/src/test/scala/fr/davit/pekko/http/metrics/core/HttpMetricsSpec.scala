@@ -50,10 +50,9 @@ class HttpMetricsSpec
     (handler.onConnection _).expects().returns((): Unit)
     (handler.onDisconnection _).expects().returns((): Unit)
 
-    val (source, sink) = TestSource
-      .probe[HttpRequest]
+    val (source, sink) = TestSource[HttpRequest]()
       .via(HttpMetrics.meterFlow(handler).join(HttpMetrics.metricsRouteToFlow(server)))
-      .toMat(TestSink.probe[HttpResponse])(Keep.both)
+      .toMat(TestSink[HttpResponse]())(Keep.both)
       .run()
 
     // wait connection to be established so next mock stubbing does not interfere with onConnect()
